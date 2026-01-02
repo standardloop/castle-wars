@@ -1,9 +1,7 @@
-import { AnimateClouds } from './clouds.js'
-
-export function DrawMenu(canvas, ctx) {
+export function DrawMenu(canvas, ctx, cloudImage) {
   //console.log("DrawMenu")
   drawBackground(canvas, ctx);
-  drawClouds(canvas, ctx);
+  drawClouds(canvas, ctx, cloudImage);
   drawCastles(canvas, ctx);
   drawTitle(canvas, ctx);
   drawButtons(canvas, ctx);
@@ -16,14 +14,8 @@ function drawBackground(canvas, ctx) {
     ctx.fillRect(0, canvas.height / 1.5, canvas.width, canvas.height / 2);
 }
 
-function drawClouds(canvas, ctx) {
-  const cloudImage = document.getElementById('cloud');
-  // const cloudImage = new Image();
-  // cloudImage.src = "images/cloud-1.png"
-  AnimateClouds(5, cloudImage, canvas, ctx)
-  // image.onload = function() {
-    //AnimateClouds(5, image, canvas)
-  // };
+function drawClouds(canvas, ctx, cloudImage) {
+  ctx.drawImage(cloudImage, 0, 100);
 }
 
 function drawCastles(canvas, ctx) {

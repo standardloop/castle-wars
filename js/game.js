@@ -8,14 +8,14 @@ const GAMESTATE = Object.freeze({
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let gameState = GAMESTATE.MENU;
+const cloudImage = new Image();
+cloudImage.src = "images/cloud-1.png"
 
 function gameLoop() {
-    if (gameState === GAMESTATE.MENU) {
-        DrawMenu(canvas, ctx);
-    } else if (gameState === GAMESTATE.PLAYING) {
-        DrawGame();
-    }
-    requestAnimationFrame(gameLoop);
+  if (gameState === GAMESTATE.MENU) {
+    DrawMenu(canvas, ctx, cloudImage);
+  }
+  requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
