@@ -1,7 +1,12 @@
 // DEF GLOBAL START
 const GAMESTATE = Object.freeze({
   MENU: 0,
-  PLAYING: 1,
+  SINGLE_PLAYER: 1,
+  TWO_PLAYER: 2,
+  CARD_DECK: 3,
+  INSTRUCTIONS: 4,
+  CREDITS: 5,
+  PAUSE: 6,
 });
 
 let canvas;
@@ -11,16 +16,20 @@ const numOfClouds = 10;
 const cloudColor = '#FFFFFF'; // White clouds
 let currAnimation;
 let gameState = GAMESTATE.MENU;
-let ratio;
+let isRunning = true;
 // let lastTime = 0;
 
 // DEF GLOBAL END
 
 function DrawMenu() {
   //console.log("DrawMenu")
+  isRunning = true;
   drawBackground();
   drawClouds();
   drawTitle();
+  DrawCastle('blue', 50, 'left');
+  DrawCastle('red', 50, 'right');
+  DrawMenuButtons();
 }
 
 // CLOUDS START
@@ -76,6 +85,40 @@ class Cloud {
 
 // CLOUDS END
 
+// CASTLE START
+
+const brickHeight = 100;
+const brickWidth = 10;
+
+// todo
+function drawBrick(color, size, location) {
+
+}
+
+// fixme
+function DrawCastle(color, bricksHigh, side) {
+
+  ctx.fillStyle = color
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "black";
+  let sidePosition;
+  if (side == "left") {
+      sidePosition = canvas.width * 0.20;
+  } else {
+      sidePosition = canvas.width * 0.70
+  }
+
+  let castleStart = canvas.height / 1.3;
+
+  for (let layersY = 0; layersY < bricksHigh; layersY++) {
+    for (let layersX = 0; layersX < 100; layersX++) {
+      ctx.fillRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+      //ctx.strokeRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+    }
+  }
+}
+// CASTLE END
+
 function drawTitle() {
     const text = 'Castle Wars';
     const fontSize = '80px';
@@ -98,22 +141,97 @@ function drawTitle() {
     }
 }
 
+// Handle in CSS?
+function drawBorder() {
+  // ctx.beginPath()
+  // ctx.strokeStyle = 'brown';
+  // ctx.lineWidth = 13;
+  // ctx.rect(0, 0, canvas.width, canvas.height);
+  // ctx.stroke();
+  // ctx.closePath()
+}
+
 function drawBackground() {
+
   ctx.fillStyle = '#87CEEB'; 
   ctx.fillRect(0, 0, canvas.width, canvas.height / 1.3);
   ctx.fillStyle = '#009900'; 
   ctx.fillRect(0, canvas.height / 1.3, canvas.width, canvas.height / 2);
+
+  // drawBorder();
 }
 
+// BUTTON START
+let menuButtons = [];
+
+class Button {
+    constructor(text, x, y, width, height) {
+        Object.assign(this, { text, x, y, width, height });
+    }
+    draw() {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(225, 225, 225, 0.5)';
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+      ctx.fillStyle = '#000000';
+      ctx.font = '20px Times New Roman';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
+    }
+    inBounds(mouseX, mouseY) {
+        return mouseX > this.x && mouseX < this.x + this.width &&
+               mouseY > this.y && mouseY < this.y + this.height;
+    }
+}
+function drawMenuButtons(buttonName, buttonIndex) {
+
+  let x = canvas.width * 0.5 - 60;
+  let y = canvas.height * (0.32 + (0.1 * buttonIndex)) - 25;
+
+  let width = 120;
+  let height= 50;
+  menuButtons.push(new Button(buttonName, x, y, width, height));
+}
+
+
+function DrawMenuButtons() {
+
+  let buttons = ["Single Player", "Two Player", "Card Deck", "Instructions", "Credits"]
+  
+  for(let button = 0; button < buttons.length; button++) {
+    drawMenuButtons(buttons[button], button);
+  }
+  menuButtons.forEach(button => button.draw());
+}
+addEventListener('click', function(event) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    menuButtons.forEach(button => {
+        if (button.inBounds(mouseX, mouseY) && isRunning) {
+          //alert(`Clicked ${button.text} button!`);
+          switch (button.text) {
+            case 'Single Player':
+              gameState = GAMESTATE.SINGLE_PLAYER;
+              break;
+            default:
+              break;
+          }
+          isRunning = false;
+        }
+    });
+});
+
+// BUTTON END
+
+// TODO, handle pixel scaling and blurry text
 function init() {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  ratio = window.devicePixelRatio;
-  canvas.width = width * ratio;
-  canvas.height = height * ratio;
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
-  canvas.getContext("2d").scale(ratio, ratio);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   clearClouds();
   createClouds(canvas);
 }
@@ -124,14 +242,27 @@ window.addEventListener('resize', function() {
   requestAnimationFrame(gameLoop);
 });
 
+function DrawGame(typeOfGame) {
+  if (typeOfGame === GAMESTATE.SINGLE_PLAYER) {
+    drawBackground();
+    drawClouds();
+    DrawCastle('blue', 50, 'left');
+    DrawCastle('grey', 50, 'right');
+  }
+}
+
 function gameLoop() {
   // const deltaTime = timeStamp - lastTime;
   // lastTime = timeStamp;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (gameState === GAMESTATE.MENU) {
-    DrawMenu();
-  } else {
-    
+  switch (gameState) {
+    case GAMESTATE.MENU:
+      DrawMenu();
+      break;
+    case GAMESTATE.SINGLE_PLAYER:
+      DrawGame(GAMESTATE.SINGLE_PLAYER);
+    default:
+      break;
   }
   currAnimation = requestAnimationFrame(gameLoop);
 }
