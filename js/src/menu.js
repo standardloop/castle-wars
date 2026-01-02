@@ -1,36 +1,35 @@
 import { AnimateClouds } from './clouds.js'
 
-export function DrawMenu(canvas) {
+export function DrawMenu(canvas, ctx) {
   //console.log("DrawMenu")
-  drawBackground(canvas);
-  drawClouds(canvas);
-  drawCastles(canvas);
-  drawTitle(canvas);
-  drawButtons(canvas);
+  drawBackground(canvas, ctx);
+  drawClouds(canvas, ctx);
+  drawCastles(canvas, ctx);
+  drawTitle(canvas, ctx);
+  drawButtons(canvas, ctx);
 }
 
-function drawBackground(canvas) {
-    const ctx = canvas.getContext('2d');
+function drawBackground(canvas, ctx) {
     ctx.fillStyle = '#87CEEB'; 
     ctx.fillRect(0, 0, canvas.width, canvas.height / 1.5);
     ctx.fillStyle = '#009900'; 
     ctx.fillRect(0, canvas.height / 1.5, canvas.width, canvas.height / 2);
 }
 
-function drawClouds(canvas) {
-  const image = document.getElementById('cloud');
-  AnimateClouds(5, image, canvas)
+function drawClouds(canvas, ctx) {
+  const cloudImage = document.getElementById('cloud');
+  // const cloudImage = new Image();
+  // cloudImage.src = "images/cloud-1.png"
+  AnimateClouds(5, cloudImage, canvas, ctx)
   // image.onload = function() {
     //AnimateClouds(5, image, canvas)
   // };
 }
 
-function drawCastles(canvas) {
-    const ctx = canvas.getContext('2d');
+function drawCastles(canvas, ctx) {
 }
 
-function drawTitle(canvas) {
-    const ctx = canvas.getContext('2d');
+function drawTitle(canvas, ctx) {
     // Define text styles
     const text = 'Castle Wars';
     const fontSize = '80px';
@@ -58,6 +57,5 @@ function drawTitle(canvas) {
 
 }
 
-function drawButtons(canvas) {
-  const ctx = canvas.getContext('2d');
+function drawButtons(canvas, ctx) {
 }

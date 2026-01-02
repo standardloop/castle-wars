@@ -6,11 +6,12 @@ const GAMESTATE = Object.freeze({
 });
 
 const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 let gameState = GAMESTATE.MENU;
 
 function gameLoop() {
     if (gameState === GAMESTATE.MENU) {
-        DrawMenu(canvas);
+        DrawMenu(canvas, ctx);
     } else if (gameState === GAMESTATE.PLAYING) {
         DrawGame();
     }
