@@ -1,3 +1,5 @@
+import { DrawCastle } from "./castle.js";
+
 export function DrawMenu(canvas, ctx, cloudImage) {
   //console.log("DrawMenu")
   drawBackground(canvas, ctx);
@@ -8,24 +10,27 @@ export function DrawMenu(canvas, ctx, cloudImage) {
 }
 
 function drawBackground(canvas, ctx) {
-    ctx.fillStyle = '#87CEEB'; 
-    ctx.fillRect(0, 0, canvas.width, canvas.height / 1.5);
-    ctx.fillStyle = '#009900'; 
-    ctx.fillRect(0, canvas.height / 1.5, canvas.width, canvas.height / 2);
+  ctx.fillStyle = '#87CEEB'; 
+  ctx.fillRect(0, 0, canvas.width, canvas.height / 1.3);
+  ctx.fillStyle = '#009900'; 
+  ctx.fillRect(0, canvas.height / 1.3, canvas.width, canvas.height / 2);
 }
 
 function drawClouds(canvas, ctx, cloudImage) {
   ctx.drawImage(cloudImage, 0, 100);
 }
 
+const defaultCastleSize = 100;
 function drawCastles(canvas, ctx) {
+  DrawCastle(canvas, ctx, "blue", defaultCastleSize, "left");
+  DrawCastle(canvas, ctx, "red", defaultCastleSize, "right");
 }
 
 function drawTitle(canvas, ctx) {
     // Define text styles
     const text = 'Castle Wars';
     const fontSize = '80px';
-    const fontFace = 'sans-serif';
+    const fontFace = 'Times New Roman';
     const textColor = '#000000ff';
     const borderWidth = 5;
 
@@ -50,4 +55,5 @@ function drawTitle(canvas, ctx) {
 }
 
 function drawButtons(canvas, ctx) {
+
 }
