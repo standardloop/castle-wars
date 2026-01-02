@@ -55,5 +55,32 @@ function drawTitle(canvas, ctx) {
 }
 
 function drawButtons(canvas, ctx) {
+  const path = new Path2D()
+  path.rect(250, 350, 200, 100)
+  path.rect(25,72,32,32)
+  path.closePath()
 
+  ctx.fillStyle = "#FFFFFF"
+  ctx.fillStyle = "rgba(225,225,225,0.5)"
+  ctx.fill(path)
+  ctx.lineWidth = 2
+  ctx.strokeStyle = "#000000"
+  ctx.font = '96px Arial';
+  ctx.fillText("hi", 250, 350);
+  ctx.stroke(path)
+
+  function getXY(canvas, event){
+    const rect = canvas.getBoundingClientRect()
+    const y = event.clientY - rect.top
+    const x = event.clientX - rect.left
+    return {x:x, y:y}
+  }
+
+  document.addEventListener("click", function (e) {
+    const XY = getXY(canvas, e)
+    if(ctx.isPointInPath(path, XY.x, XY.y)) {
+      // Do Something with the click
+      alert("clicked in rectangle")
+    }
+  }, false)
 }

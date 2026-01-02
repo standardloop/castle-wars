@@ -15,7 +15,7 @@ function gameLoop() {
   if (gameState === GAMESTATE.MENU) {
     DrawMenu(canvas, ctx, cloudImage);
   }
-  requestAnimationFrame(gameLoop);
+  //requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
