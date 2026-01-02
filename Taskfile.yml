@@ -1,0 +1,10 @@
+---
+version: '3'
+
+vars:
+  PORT: 8080
+
+tasks:
+  default:
+    cmds:
+      - python3 -m http.server {{.PORT}}
