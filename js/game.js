@@ -14,9 +14,17 @@ let ctx;
 let clouds = [];
 const numOfClouds = 10;
 const cloudColor = '#FFFFFF'; // White clouds
+const handAmount = 1;
+let grassStart;
+
 let currAnimation;
 let gameState = GAMESTATE.MENU;
 let isRunning = true;
+let globalDeck = [];
+
+let player1;
+let cpu;
+let player2;
 // let lastTime = 0;
 
 // DEF GLOBAL END
@@ -33,7 +41,7 @@ function DrawMenu() {
 }
 
 // CLOUDS START
-function createClouds() {
+function initClouds() {
   for (let i = 0; i < numOfClouds; i++) {
     const x = Math.random() * canvas.width;
     const y = Math.random() * canvas.height * 0.4; // upper half
@@ -108,7 +116,7 @@ function DrawCastle(color, bricksHigh, side) {
       sidePosition = canvas.width * 0.70
   }
 
-  let castleStart = canvas.height / 1.3;
+  let castleStart = grassStart;
 
   for (let layersY = 0; layersY < bricksHigh; layersY++) {
     for (let layersX = 0; layersX < 100; layersX++) {
@@ -154,9 +162,9 @@ function drawBorder() {
 function drawBackground() {
 
   ctx.fillStyle = '#87CEEB'; 
-  ctx.fillRect(0, 0, canvas.width, canvas.height / 1.3);
+  ctx.fillRect(0, 0, canvas.width, grassStart);
   ctx.fillStyle = '#009900'; 
-  ctx.fillRect(0, canvas.height / 1.3, canvas.width, canvas.height / 2);
+  ctx.fillRect(0, grassStart, canvas.width, canvas.height / 2);
 
   // drawBorder();
 }
@@ -164,10 +172,19 @@ function drawBackground() {
 // BUTTON START
 let menuButtons = [];
 
+function clearMenuButtons() {
+  menuButtons = []
+}
+
 class Button {
     constructor(text, x, y, width, height) {
-        Object.assign(this, { text, x, y, width, height });
+        this.text = text; 
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
+  
     draw() {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -206,6 +223,7 @@ function DrawMenuButtons() {
   }
   menuButtons.forEach(button => button.draw());
 }
+
 addEventListener('click', function(event) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -217,7 +235,13 @@ addEventListener('click', function(event) {
           switch (button.text) {
             case 'Single Player':
               gameState = GAMESTATE.SINGLE_PLAYER;
+              player1 = new Player('left', 'human', 'red');
+              startingHand(player1);
+              cpu = new Player('right', 'cpu', 'grey');
+              startingHand(cpu);
               break;
+            case 'Card Deck':
+              gameState = GAMESTATE.CARD_DECK;
             default:
               break;
           }
@@ -233,7 +257,13 @@ function init() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   clearClouds();
-  createClouds(canvas);
+  clearMenuButtons()
+  initClouds()
+  grassStart = canvas.height / 1.3;
+  // if (gameState == GAMESTATE.MENU) {
+
+  // }
+  //createClouds(canvas);
 }
 
 window.addEventListener('resize', function() {
@@ -242,13 +272,39 @@ window.addEventListener('resize', function() {
   requestAnimationFrame(gameLoop);
 });
 
+// TODO
+function drawFence(side, bricksHigh) {
+  ctx.fillStyle = 'red'
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "black";
+  let sidePosition;
+  if (side == "left") {
+      sidePosition = canvas.width * 0.40;
+  } else {
+      sidePosition = canvas.width * 0.60
+  }
+
+  let fenceStart = grassStart;
+
+  for (let layersY = 0; layersY < bricksHigh; layersY++) {
+    for (let layersX = 0; layersX < 10; layersX++) {
+      ctx.fillRect(sidePosition, (fenceStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+      //ctx.strokeRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+    }
+  }
+}
+
 function DrawGame(typeOfGame) {
   if (typeOfGame === GAMESTATE.SINGLE_PLAYER) {
     drawBackground();
     drawClouds();
-    DrawCastle('blue', 50, 'left');
-    DrawCastle('grey', 50, 'right');
+    drawPlayerAndCPU();
   }
+}
+
+function drawPlayerAndCPU() {
+  player1.draw();
+  cpu.draw();
 }
 
 function gameLoop() {
@@ -261,6 +317,10 @@ function gameLoop() {
       break;
     case GAMESTATE.SINGLE_PLAYER:
       DrawGame(GAMESTATE.SINGLE_PLAYER);
+      break;
+    case GAMESTATE.CARD_DECK:
+      DrawCardDeck();
+      break;
     default:
       break;
   }
@@ -271,7 +331,127 @@ window.onload = function() {
   canvas = document.getElementById('gameCanvas');
   ctx = canvas.getContext('2d');
   init();
+  globalDeck = createDefaultDeck();
+  shuffleDeck(globalDeck);
   gameLoop();
   // }
 }
 
+function shuffleDeck(deck) {
+    for (let i = deck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+    }
+}
+
+function drawCard(player) {
+  player.hand.push(globalDeck.pop());
+}
+
+function startingHand(player) {
+  for(let i = 0; i < handAmount; i++) {
+    drawCard(player);
+  }
+}
+
+// PLAYER START
+class Player {
+  // 'left'
+  // 'human' | 'cpu'
+  constructor(side, kind, color) {
+    this.side = side;
+    this.kind = kind;
+    this.color = color;
+    this.hand = [];
+    // brick
+    this.builders = 2;
+    this.bricks = 5;
+    // weapons;
+    this.soldiers = 2;
+    this.weapons = 5;
+    // crystal
+    this.magic = 2;
+    this.crystals = 5;
+    //castle
+    this.castle = 30;
+    this.fence = 10;
+  }
+  draw() {
+    if(this.kind === 'player') {
+      
+      // drawCardsFaceUp
+    } else if (this.kind === 'cpu') {
+      // drawCardsFaceDown
+    }
+    DrawCastle(this.color, this.castle, this.side);
+    drawFence(this.side, this.fence);
+    
+  }
+}
+
+//
+// DECK START
+
+// TODO add ability for custom
+
+
+// const CARDS = Object.freeze({
+//   WALL: 0,
+//   BASE: 1,
+//   DEFENCE: 2,
+//   RESERVE: 3,
+//   TOWER: 4,
+//   SCHOOL: 5,
+//   WAIN: 6,
+//   FENCE: 7,
+//   FORT: 8,
+//   BABYLON: 9,
+// });
+
+function DrawCardDeck() {
+    drawBackground();
+    drawClouds();
+    DrawCastle('blue', 50, 'left');
+    DrawCastle('red', 50, 'right');
+    drawCards();
+}
+
+function drawCards() {
+  //
+}
+
+function createDefaultDeck() {
+  let defaultDeck = [];
+  const wallCards = 3;
+  for(let i = 0; i < wallCards; i++) {
+    defaultDeck.push(new Card("Wall", {"brick": -1}, {"self": {"fence": 3}}));
+  }
+  const baseCards = 3;
+  for(let i = 0; i < baseCards; i++) {
+    defaultDeck.push(new Card("Base", {"brick": -1}, {"self": {"castle": 2}}));
+  }
+  // const defenceCards = 3;
+  // const reserveCards = 3;
+  // const towerCards = 3;
+  return defaultDeck;
+}
+
+
+class Card {
+  // "Wain"
+  // {brick: -10}
+  // {self: {castle: 8}, enemy: {castle: -4}}
+  constructor(name, cost, effect) {
+    this.name = name;
+    this.cost = cost;
+    this.effect = effect
+  }
+
+  draw() {
+
+  }
+}
+
+// DECK END
