@@ -31,7 +31,6 @@ let gameState = GAMESTATE.MENU;
 let actualGameState = ACTUAL_GAMESTATE.PLAYER_1_TURN;
 let isRunning = true;
 let globalDeck = [];
-let turn = 0; // player1
 
 let player1;
 let player2;
@@ -288,26 +287,73 @@ addEventListener("click", function (event) {
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
 
-  menuButtons.forEach((button) => {
-    if (button.inBounds(mouseX, mouseY) && isRunning) {
-      //alert(`Clicked ${button.text} button!`);
-      switch (button.text) {
-        case "Single Player":
-          gameState = GAMESTATE.SINGLE_PLAYER;
-          player1 = new Player("left", "human", 1, "blue");
-          startingHand(player1);
-          player2 = new Player("right", "cpu", 2, "grey");
-          startingHand(player2);
-          break;
-        case "Card Deck":
-          gameState = GAMESTATE.CARD_DECK;
-        default:
-          break;
+  if (gameState === GAMESTATE.MENU) {
+    menuButtons.forEach((button) => {
+      if (button.inBounds(mouseX, mouseY) && isRunning) {
+        //alert(`Clicked ${button.text} button!`);
+        switch (button.text) {
+          case "Single Player":
+            gameState = GAMESTATE.SINGLE_PLAYER;
+            player1 = new Player("left", "human", 1, "blue");
+            startingHand(player1);
+            player2 = new Player("right", "cpu", 2, "grey");
+            startingHand(player2);
+            break;
+          case "Card Deck":
+            gameState = GAMESTATE.CARD_DECK;
+          default:
+            break;
+        }
+        isRunning = false;
       }
-      isRunning = false;
+    });
+  } else if (gameState === GAMESTATE.SINGLE_PLAYER) {
+    // check all cards
+    if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+      player1.hand.forEach((card) => {
+        if (card.inBounds(mouseX, mouseY)) {
+          if (canPlayerPlayCard(player1.stats, card)) {
+            playCard(card);
+          } else {
+            alert(`Clicked ${card.name}, but card cannot be played!`);
+          }
+        }
+      });
     }
-  });
+  }
 });
+
+function playCard(card) {
+  let player;
+  if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+    player = player1;
+  } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+    player = player2;
+  }
+  card.effect.self.forEach((effect) => {
+    player.stats[effect.resource] += effect.amount;
+  });
+  if (card.effect.enemy.length !== 0) {
+    // do stuff
+  }
+}
+
+// maybe we should pass playerHand here lol;
+function canPlayerPlayCard(stats, card) {
+  // let player;
+
+  // if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+  //   player = player1;
+  // } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+  //   player = player2;
+  // }
+  // WIP
+  if (stats[card.cost.resource] < card.cost.amount) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 // BUTTON END
 
@@ -331,8 +377,8 @@ window.addEventListener("resize", function () {
   requestAnimationFrame(gameLoop);
 });
 
-const fenceWidth = 2;
 function drawFence(side, bricksHigh) {
+  const fenceWidth = 2;
   ctx.fillStyle = "red";
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
@@ -419,60 +465,56 @@ function startingHand(player) {
   }
 }
 
-class Stat {
-  constructor(category, name1, amount1, name2, amount2) {
-    this.category = category;
-    this.name1 = name1;
-    this.amount1 = amount1;
-    this.name2 = name2;
-    this.amount2 = amount2;
-  }
-}
-
-class PlayerStats {
-  constructor(side) {
-    // this.stats = [];
+// PLAYER START
+class Player {
+  // 'left'
+  // 'human' | 'cpu'
+  constructor(side, kind, number, color) {
     this.side = side;
-    // brick
-    this.builders = {
-      name: "Builders",
-      amount: 2,
-    };
-    this.bricks = {
-      name: "Bricks",
-      amount: 5,
-    };
-    // weapons;
-    this.soldiers = {
-      name: "Soldiers",
-      amount: 2,
-    };
-    this.weapons = {
-      name: "Weapons",
-      amount: 5,
-    };
-    // crystal
-    this.magic = {
-      name: "Magic",
-      amount: 2,
-    };
-    this.crystals = {
-      name: "Crystals",
-      amount: 5,
-    };
-    //castle
-    this.castle = {
-      name: "Castle",
-      amount: 30,
-    };
-    this.fence = {
-      name: "Fence",
-      amount: 10,
+    this.kind = kind;
+    this.number = number;
+    this.color = color;
+    this.hand = [];
+    this.stats = {
+      Builders: 2,
+      Bricks: 5,
+      Soldiers: 2,
+      Weapons: 5,
+      Magic: 2,
+      Crystals: 5,
+      Castle: 30,
+      Fence: 10,
     };
     this.statRectWidth = 50;
     this.statRectHeight = 50;
   }
   draw() {
+    DrawCastle(this.color, this.stats["Castle"], this.side);
+    drawFence(this.side, this.stats["Fence"]);
+    this.drawPlayerStats();
+    if (
+      (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN &&
+        this.number === 1) ||
+      (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN && this.number === 2)
+    ) {
+      if (this.kind === "player") {
+      } else if (this.kind === "cpu") {
+        // drawCardsFaceDown
+      }
+      // drawCardsFaceUp
+      // console.log(this.hand);
+      let cardStart = 0;
+      for (let card = 0; card < this.hand.length; card++) {
+        let cardCanBePlayedBool = canPlayerPlayCard(
+          this.stats,
+          this.hand[card],
+        );
+        this.hand[card].draw(cardStart, cardCanBePlayedBool);
+        cardStart += this.hand[card].rectWidth + 5;
+      }
+    }
+  }
+  drawPlayerStats() {
     let positionX;
     if (this.side == "left") {
       positionX = canvas.width * 0.1;
@@ -487,8 +529,8 @@ class PlayerStats {
           this.drawStat(
             positionX,
             positionY,
-            this.builders,
-            this.bricks,
+            { name: "Builders", amount: this.stats["Builders"] },
+            { name: "Bricks", amount: this.stats["Bricks"] },
             "red",
           );
           break;
@@ -496,8 +538,8 @@ class PlayerStats {
           this.drawStat(
             positionX,
             positionY,
-            this.soldiers,
-            this.weapons,
+            { name: "Soldiers", amount: this.stats["Soldiers"] },
+            { name: "Weapons", amount: this.stats["Weapons"] },
             "green",
           );
           break;
@@ -505,13 +547,19 @@ class PlayerStats {
           this.drawStat(
             positionX,
             positionY,
-            this.magic,
-            this.crystals,
+            { name: "Magic", amount: this.stats["Magic"] },
+            { name: "Crystals", amount: this.stats["Crystals"] },
             "blue",
           );
           break;
         case 4:
-          this.drawStat(positionX, positionY, this.castle, this.fence, "grey");
+          this.drawStat(
+            positionX,
+            positionY,
+            { name: "Castle", amount: this.stats["Castle"] },
+            { name: "Fence", amount: this.stats["Fence"] },
+            "grey",
+          );
           break;
         default:
           break;
@@ -526,42 +574,6 @@ class PlayerStats {
     ctx.font = "20px Times New Roman";
     ctx.fillText(stat1.name + " " + stat1.amount, x, y);
     ctx.fillText(stat2.name + " " + stat2.amount, x, y + 20);
-  }
-}
-
-// PLAYER START
-class Player {
-  // 'left'
-  // 'human' | 'cpu'
-  constructor(side, kind, number, color) {
-    this.side = side;
-    this.kind = kind;
-    this.number = number;
-    this.color = color;
-    this.hand = [];
-    this.playerStats = new PlayerStats(this.side);
-  }
-  draw() {
-    DrawCastle(this.color, this.playerStats.castle.amount, this.side);
-    drawFence(this.side, this.playerStats.fence.amount);
-    this.playerStats.draw();
-    if (
-      (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN &&
-        this.number === 1) ||
-      (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN && this.number === 2)
-    ) {
-      if (this.kind === "player") {
-      } else if (this.kind === "cpu") {
-        // drawCardsFaceDown
-      }
-      // drawCardsFaceUp
-      // console.log(this.hand);
-      let cardStart = 0;
-      for (let card = 0; card < this.hand.length; card++) {
-        this.hand[card].draw(cardStart);
-        cardStart += this.hand[card].rectWidth + 5;
-      }
-    }
   }
 }
 
@@ -599,10 +611,160 @@ function createDefaultDeck() {
   let defaultDeck = [];
 
   addBricksCards(defaultDeck);
-  addWeaponsCards(defaultDeck);
+  //addWeaponsCards(defaultDeck);
+  //addCrystalsCards(defaultDeck);
   return defaultDeck;
 }
 
+function addBricksCards(defaultDeck) {
+  const cardType = CARD_TYPES.BRICKS;
+  const resourceName = "Bricks";
+  const wallCards = 3;
+  for (let i = 0; i < wallCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Wall",
+        { resource: resourceName, amount: 1 },
+        {
+          self: [{ resource: "Fence", amount: 3 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const baseCards = 3;
+  for (let i = 0; i < baseCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Base",
+        { resource: resourceName, amount: 1 },
+        {
+          self: [{ resource: "Castle", amount: 2 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const defenceCards = 3;
+  for (let i = 0; i < defenceCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Defence",
+        { resource: resourceName, amount: 3 },
+        {
+          self: [{ resource: "Fence", amount: 6 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const reserveCards = 3;
+  for (let i = 0; i < reserveCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Reserve",
+        { resource: resourceName, amount: 3 },
+        {
+          self: [
+            { resource: "Fence", amount: -4 },
+            { resource: "Castle", amount: 8 },
+          ],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const towerCards = 3;
+  for (let i = 0; i < towerCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Tower",
+        { resource: resourceName, amount: 6 },
+        {
+          self: [{ resource: "Castle", amount: 5 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const schoolCards = 3;
+  for (let i = 0; i < schoolCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "School",
+        { resource: resourceName, amount: 8 },
+        {
+          self: [{ resource: "Builders", amount: 1 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const wainCards = 2;
+  for (let i = 0; i < wainCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Wain",
+        { resource: resourceName, amount: 10 },
+        {
+          self: [{ resource: "Castle", amount: 8 }],
+          enemy: [{ resource: "Castle", amount: -4 }],
+        },
+        cardType,
+      ),
+    );
+  }
+  const fenceCards = 2;
+  for (let i = 0; i < fenceCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Fence",
+        { resource: resourceName, amount: 12 },
+        {
+          self: [{ resource: "Fence", amount: 22 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const fortCards = 2;
+  for (let i = 0; i < fortCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Fort",
+        { resource: resourceName, amount: 18 },
+        {
+          self: [{ resource: "Castle", amount: 20 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+  const babylonCards = 2;
+  for (let i = 0; i < babylonCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Babylon",
+        { resource: resourceName, amount: 39 },
+        {
+          self: [{ resource: "Castle", amount: 32 }],
+          enemy: [],
+        },
+        cardType,
+      ),
+    );
+  }
+}
+
+// FIXME new datastructure
 function addWeaponsCards(defaultDeck) {
   const cardType = CARD_TYPES.WEAPONS;
   const archerCards = 3;
@@ -684,8 +846,7 @@ function addWeaponsCards(defaultDeck) {
         "Thief",
         { weapons: -15 },
         {
-          self: [{ bricks: 5 }, { crystals: 5 }, { weapons: 5 }],
-          enemy: [{ bricks: -5 }, { crystals: -5 }, { weapons: -5 }],
+          transfer: [{ bricks: 5 }, { crystals: 5 }, { weapons: 5 }],
         },
         cardType,
       ),
@@ -719,79 +880,115 @@ function addWeaponsCards(defaultDeck) {
   }
 }
 
-function addBricksCards(defaultDeck) {
-  const cardType = CARD_TYPES.BRICKS;
-  const wallCards = 3;
-  for (let i = 0; i < wallCards; i++) {
-    defaultDeck.push(
-      new Card("Wall", { bricks: -1 }, { self: [{ fence: 3 }] }, cardType),
-    );
-  }
-  const baseCards = 3;
-  for (let i = 0; i < baseCards; i++) {
-    defaultDeck.push(
-      new Card("Base", { bricks: -1 }, { self: [{ castle: 2 }] }, cardType),
-    );
-  }
-  const defenceCards = 3;
-  for (let i = 0; i < defenceCards; i++) {
-    defaultDeck.push(
-      new Card("Defence", { bricks: -3 }, { self: [{ fence: 6 }] }, cardType),
-    );
-  }
-  const reserveCards = 3;
-  for (let i = 0; i < reserveCards; i++) {
+// FIXME new datastructure
+function addCrystalsCards(defaultDeck) {
+  const cardType = CARD_TYPES.CRYSTALS;
+  const conjureBricksCards = 3;
+  for (let i = 0; i < conjureBricksCards; i++) {
     defaultDeck.push(
       new Card(
-        "Reserve",
-        { bricks: -3 },
-        { self: [{ fence: -4 }, { castle: 8 }] },
+        "Conjure bricks",
+        { crystals: -4 },
+        { self: [{ bricks: 8 }] },
         cardType,
       ),
     );
   }
-  const towerCards = 3;
-  for (let i = 0; i < towerCards; i++) {
-    defaultDeck.push(
-      new Card("Tower", { bricks: -6 }, { self: [{ castle: 5 }] }, cardType),
-    );
-  }
-  const schoolCards = 3;
-  for (let i = 0; i < schoolCards; i++) {
-    defaultDeck.push(
-      new Card("School", { bricks: -8 }, { self: [{ builders: 1 }] }, cardType),
-    );
-  }
-  const wainCards = 2;
-  for (let i = 0; i < wainCards; i++) {
+  const conjureCrystalsCards = 3;
+  for (let i = 0; i < conjureCrystalsCards; i++) {
     defaultDeck.push(
       new Card(
-        "Wain",
-        { bricks: -10 },
-        { self: [{ castle: 8 }], enemy: [{ castle: -4 }] },
+        "Conjure crystals",
+        { crystals: -4 },
+        { self: [{ crystals: 8 }] },
         cardType,
       ),
     );
   }
-  const fenceCards = 2;
-  for (let i = 0; i < fenceCards; i++) {
-    defaultDeck.push(
-      new Card("Fence", { bricks: -12 }, { self: [{ fence: 22 }] }, cardType),
-    );
-  }
-  const fortCards = 2;
-  for (let i = 0; i < fortCards; i++) {
-    defaultDeck.push(
-      new Card("Fort", { bricks: -18 }, { self: [{ castle: 20 }] }, cardType),
-    );
-  }
-  const babylonCards = 2;
-  for (let i = 0; i < babylonCards; i++) {
+  const conjureWeaponsCards = 3;
+  for (let i = 0; i < conjureWeaponsCards; i++) {
     defaultDeck.push(
       new Card(
-        "Babylon",
-        { bricks: -39 },
-        { self: [{ castle: 32 }] },
+        "Conjure weapons",
+        { crystals: -4 },
+        { self: [{ weapons: 8 }] },
+        cardType,
+      ),
+    );
+  }
+  const crushBricksCards = 3;
+  for (let i = 0; i < crushBricksCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Crush bricks",
+        { crystals: -4 },
+        { enemy: [{ bricks: -8 }] },
+        cardType,
+      ),
+    );
+  }
+  const crushCrystalsCards = 3;
+  for (let i = 0; i < crushCrystalsCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Crush crystals",
+        { crystals: -4 },
+        { enemy: [{ crystals: -8 }] },
+        cardType,
+      ),
+    );
+  }
+  const crushWeaponsCards = 3;
+  for (let i = 0; i < crushWeaponsCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Crush weapons",
+        { crystals: -4 },
+        { enemy: [{ weapons: -8 }] },
+        cardType,
+      ),
+    );
+  }
+  const sorcererCards = 3;
+  for (let i = 0; i < sorcererCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Sorcerer",
+        { crystals: -8 },
+        { self: [{ magic: 1 }] },
+        cardType,
+      ),
+    );
+  }
+  const dragonCards = 2;
+  for (let i = 0; i < dragonCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Dragon",
+        { crystals: -21 },
+        { enemy: [{ health: -25 }] },
+        cardType,
+      ),
+    );
+  }
+  const pixiesCards = 2;
+  for (let i = 0; i < pixiesCards; i++) {
+    defaultDeck.push(
+      new Card(
+        "Pixies",
+        { crystals: -22 },
+        { self: [{ castle: 22 }] },
+        cardType,
+      ),
+    );
+  }
+  const curseCard = 2;
+  for (let i = 0; i < curseCard; i++) {
+    defaultDeck.push(
+      new Card(
+        "Curse",
+        { crystals: -45 },
+        { transfer: [{ all: 1 }] },
         cardType,
       ),
     );
@@ -815,9 +1012,13 @@ class Card {
     this.kind = kind;
     this.rectWidth = 5 * 10;
     this.rectHeight = 7 * 10;
+
+    this.x;
+    this.y;
   }
 
-  draw(x) {
+  // canPlay is bool
+  draw(x, canPlay) {
     let color;
     switch (this.kind) {
       case CARD_TYPES.BRICKS:
@@ -833,6 +1034,10 @@ class Card {
         color = "grey";
         break;
     }
+    if (!canPlay) {
+      color = "grey";
+    }
+
     const y = grassStart;
     ctx.fillStyle = color;
     ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
@@ -841,7 +1046,25 @@ class Card {
     ctx.font = "10px Times New Roman";
     let textY = y + this.rectHeight / 2;
     let textX = x + this.rectWidth / 2;
-    ctx.fillText(this.name, textX, textY);
+    const spaceChar = " ";
+    if (this.name.includes(spaceChar)) {
+      let allWordsInName = this.name.split(spaceChar);
+      for (let i = 0; i < allWordsInName.length; i++) {
+        ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+      }
+    } else {
+      ctx.fillText(this.name, textX, textY);
+    }
+    this.x = x;
+    this.y = y;
+  }
+  inBounds(mouseX, mouseY) {
+    return (
+      mouseX > this.x &&
+      mouseX < this.x + this.rectWidth &&
+      mouseY > this.y &&
+      mouseY < this.y + this.rectHeight
+    );
   }
 }
 
