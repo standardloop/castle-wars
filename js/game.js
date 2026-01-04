@@ -337,6 +337,10 @@ function playCard(card) {
   }
   card.effect.self.forEach((effect) => {
     player.stats[effect.resource] += effect.amount;
+    if (player.stats["Fence"] < 0) {
+      player.stats["Fence"] = 0;
+      // cover case with Reserve card, in future, make this a gamesetting.
+    }
   });
 
   card.effect.enemy.forEach((effect) => {
@@ -350,13 +354,21 @@ function playCard(card) {
       }
     }
   });
+
+  // Thief and Curse cards
+  card.effect.transfer.forEach((effect) => {
+    enemy[effect.resource] -= effect.amount;
+    player[effect.resource] += amountSubtracted;
+  });
+
+  player.stats[card.cost.resource] -= card.cost.amount;
   if (
     player.number === 1 &&
     enemy.number === 2 &&
     (enemy.stats["Castle"] <= 0 || player.stats["Castle"] >= castleSizeToWin)
   ) {
     actualGameState = ACTUAL_GAMESTATE.PLAYER_1_WIN;
-    alert("Player 1 wins!!!");
+    alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
   } else if (
     player.number === 2 &&
     enemy.number === 1 &&
@@ -980,7 +992,6 @@ function addWeaponsCards(defaultDeck) {
   }
 }
 
-// FIXME new datastructure
 function addCrystalsCards(defaultDeck) {
   const cardType = CARD_TYPES.CRYSTALS;
   const resourceName = "Crystals";
