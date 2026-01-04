@@ -23,7 +23,6 @@ let isRunning = true;
 let globalDeck = [];
 
 let player1;
-let cpu;
 let player2;
 // let lastTime = 0;
 
@@ -263,8 +262,8 @@ addEventListener('click', function(event) {
               gameState = GAMESTATE.SINGLE_PLAYER;
               player1 = new Player('left', 'human', 'red');
               startingHand(player1);
-              cpu = new Player('right', 'cpu', 'grey');
-              startingHand(cpu);
+              player2 = new Player('right', 'cpu', 'grey');
+              startingHand(player2);
               break;
             case 'Card Deck':
               gameState = GAMESTATE.CARD_DECK;
@@ -298,7 +297,6 @@ window.addEventListener('resize', function() {
   requestAnimationFrame(gameLoop);
 });
 
-// TODO
 const fenceWidth = 2;
 function drawFence(side, bricksHigh) {
   ctx.fillStyle = 'red'
@@ -333,7 +331,7 @@ function DrawGame(typeOfGame) {
 
 function drawPlayerAndCPU() {
   player1.draw();
-  cpu.draw();
+  player2.draw();
 }
 
 function gameLoop() {
@@ -386,11 +384,12 @@ function startingHand(player) {
 }
 
 class PlayerStats {
-  constructor() {
+  constructor(side) {
+    this.side = side;
     // brick
     this.builders = {
       name: "Builders",
-      amout: 2,
+      amount: 2,
     }
     this.bricks = {
       name: "Bricks",
@@ -424,6 +423,32 @@ class PlayerStats {
       amount: 10,
     }
   }
+  draw() {
+    let sidePositionX;
+    if (this.side == "left") {
+        sidePositionX = canvas.width * 0.10;
+    } else {
+        sidePositionX = canvas.width * 0.90
+    }
+    for(let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
+      switch (playerStatRect) {
+        case 1:
+          drawStat(0,0,0,0,this.builders, this.bricks);
+          break;
+        case 2:
+          drawStat(0,0,0,0,this.soldiers, this.weapons);
+          break;
+        case 3:
+          drawStat(0,0,0,0,this.magic, this.crystals);
+          break;
+        case 4:
+          drawStat(0,0,0,0,this.castle, this.fence);
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }
 
 // PLAYER START
@@ -435,42 +460,18 @@ class Player {
     this.kind = kind;
     this.color = color;
     this.hand = [];
-    this.playerStats = new PlayerStats;
+    this.playerStats = new PlayerStats(this.side);
   }
   draw() {
 
     DrawCastle(this.color, this.playerStats.castle.amount, this.side);
     drawFence(this.side, this.playerStats.fence.amount);
-    drawPlayerStats(this.side, this.playerStats);
+    this.playerStats.draw()
     if(this.kind === 'player') {
       // drawCardsFaceUp
     } else if (this.kind === 'cpu') {
       // drawCardsFaceDown
     }
-  }
-}
-
-function drawPlayerStats(side, playerStats) {
-  if (side == "left") {
-      sidePositionX = canvas.width * 0.10;
-  } else {
-      sidePositionX = canvas.width * 0.90
-  }
-  for(let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
-    switch (playerStatRect) {
-      case 1:
-        drawStat(0,0,0,0,playerStats.builders, playerStats.bricks);
-        break;
-      case 2:
-        drawStat(0,0,0,0,playerStats.soldiers, playerStats.weapons);
-      case 3:
-        drawStat(0,0,0,0,playerStats.magic, playerStats.crystals);
-      case 4:
-        drawStat(0,0,0,0,playerStats.castle, playerStats.fence);
-      default:
-        break;
-    }
-
   }
 }
 
