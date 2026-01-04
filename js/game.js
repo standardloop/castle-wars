@@ -91,7 +91,7 @@ class Cloud {
     }
 }
 
-function flipCoin() {
+function coinFlip() {
   const result = Math.random();
   if (result < 0.5) {
     return -1;
@@ -108,31 +108,33 @@ function getRandomArbitrary(min, max) {
 
 // CASTLE START
 
-const brickWidth = (225 / 2);
-const brickHeight = (75 / 2);
+const brickWidth = (225 / 25);
+const brickHeight = (75 / 25);
 
 const castleWidth = 10
 
 // TODO
-function drawBrick(x, y, width, height) {
+function drawBrick(x, y, width, height, drawBorder) {
   ctx.fillRect(x, y, width, height);
-  // ctx.beginPath();
-  // ctx.strokeStyle = 'white';
-  // ctx.lineWidth = 2;
-  // ctx.moveTo(x, y);
-  // ctx.lineTo(x + width, y);
-  // ctx.stroke();
-  // ctx.closePath();
+  if (drawBorder) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + width, y);
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 
 // fixme
 function DrawCastle(color, bricksHigh, side) {
-
+  // console.log("DrawCastle")
   ctx.fillStyle = color
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
-  let sidePosition;
+  let sidePositionX;
   if (side == "left") {
       sidePositionX = canvas.width * 0.20;
   } else {
@@ -141,10 +143,10 @@ function DrawCastle(color, bricksHigh, side) {
   }
 
   let castleStartY = grassStart;
-  drawBrick(sidePositionX, (castleStartY) - brickHeight, brickWidth * flipper, brickHeight);
-  for (let layersY = 0; layersY < bricksHigh; layersY++) {
-    for (let layersX = 0; layersX < castleWidth; layersX++) {
-      //drawBrick(sidePositionX, (castleStart) - brickHeight - layersY, layersX + (brickWidth * flipper), brickHeight);
+  //drawBrick(sidePositionX, (castleStartY) - brickHeight, brickWidth * flipper, brickHeight, true);
+  for (let layersY = 1; layersY <= bricksHigh; layersY++) {
+    for (let layersX = 1; layersX <= castleWidth; layersX++) {
+      drawBrick(sidePositionX + (layersX * brickWidth * flipper), (castleStartY) - (brickHeight * layersY), brickWidth, brickHeight, true);
     }
     
   }
@@ -297,22 +299,25 @@ window.addEventListener('resize', function() {
 });
 
 // TODO
+const fenceWidth = 2;
 function drawFence(side, bricksHigh) {
   ctx.fillStyle = 'red'
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
-  let sidePosition;
+  let flipper = 1;
+  let sidePositionX;
   if (side == "left") {
-      sidePosition = canvas.width * 0.40;
+      sidePositionX = canvas.width * 0.40;
   } else {
-      sidePosition = canvas.width * 0.60
+      sidePositionX = canvas.width * 0.60
+      flipper = -1;
   }
 
-  let fenceStart = grassStart;
+  let fenceStartY = grassStart;
 
-  for (let layersY = 0; layersY < bricksHigh; layersY++) {
-    for (let layersX = 0; layersX < 10; layersX++) {
-      ctx.fillRect(sidePosition, (fenceStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+  for (let layersY = 1; layersY < bricksHigh; layersY++) {
+    for (let layersX = 1; layersX <= fenceWidth; layersX++) {
+      drawBrick(sidePositionX + (layersX * brickWidth * flipper), (fenceStartY) - (brickHeight * layersY), brickWidth, brickHeight, true);
       //ctx.strokeRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
     }
   }
@@ -380,6 +385,47 @@ function startingHand(player) {
   }
 }
 
+class PlayerStats {
+  constructor() {
+    // brick
+    this.builders = {
+      name: "Builders",
+      amout: 2,
+    }
+    this.bricks = {
+      name: "Bricks",
+      amount: 5,
+    }
+    // weapons;
+    this.soldiers = {
+      name: "Soldiers",
+      amount: 2,
+    }
+    this.weapons = {
+      name: "Weapons",
+      amount: 5,
+    }
+    // crystal
+    this.magic = {
+      name: "Magic",
+      amount: 2,
+    }
+    this.crystals = {
+      name: "Crystals",
+      amount: 5,
+    }
+    //castle
+    this.castle = {
+      name: "Castle",
+      amount: 30,
+    }
+    this.fence = {
+      name: "Fence",
+      amount: 10,
+    }
+  }
+}
+
 // PLAYER START
 class Player {
   // 'left'
@@ -389,30 +435,54 @@ class Player {
     this.kind = kind;
     this.color = color;
     this.hand = [];
-    // brick
-    this.builders = 2;
-    this.bricks = 5;
-    // weapons;
-    this.soldiers = 2;
-    this.weapons = 5;
-    // crystal
-    this.magic = 2;
-    this.crystals = 5;
-    //castle
-    this.castle = 30;
-    this.fence = 10;
+    this.playerStats = new PlayerStats;
   }
   draw() {
+
+    DrawCastle(this.color, this.playerStats.castle.amount, this.side);
+    drawFence(this.side, this.playerStats.fence.amount);
+    drawPlayerStats(this.side, this.playerStats);
     if(this.kind === 'player') {
-      
       // drawCardsFaceUp
     } else if (this.kind === 'cpu') {
       // drawCardsFaceDown
     }
-    DrawCastle(this.color, this.castle, this.side);
-    drawFence(this.side, this.fence);
-    
   }
+}
+
+function drawPlayerStats(side, playerStats) {
+  if (side == "left") {
+      sidePositionX = canvas.width * 0.10;
+  } else {
+      sidePositionX = canvas.width * 0.90
+  }
+  for(let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
+    switch (playerStatRect) {
+      case 1:
+        drawStat(0,0,0,0,playerStats.builders, playerStats.bricks);
+        break;
+      case 2:
+        drawStat(0,0,0,0,playerStats.soldiers, playerStats.weapons);
+      case 3:
+        drawStat(0,0,0,0,playerStats.magic, playerStats.crystals);
+      case 4:
+        drawStat(0,0,0,0,playerStats.castle, playerStats.fence);
+      default:
+        break;
+    }
+
+  }
+}
+
+function drawStat(x, y, width, height, stat1, stat2) {
+  // ctx.fillRect(x, y, width, height);
+  ctx.fillStyle = "#FF0000"; // Set the fill color to red
+  ctx.fillRect(10, 20, 150, 100); // Draw a filled rectangle at (10, 20) with width 150, height 100
+
+  // 2. Add the text (drawn on top of the rectangle)
+  ctx.fillStyle = "#FFFFFF"; // Set the text color to white
+  ctx.font = "20px Arial"; // Define the font style and size
+  ctx.fillText(stat1, 20, 75); // Draw "Hello World" at (20, 75)
 }
 
 //
