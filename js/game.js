@@ -9,7 +9,7 @@ const GAMESTATE = Object.freeze({
   PAUSE: 6,
 });
 
-const ACTUALGAMESTATE = Object.freeze({
+const ACTUAL_GAMESTATE = Object.freeze({
   DEALING: 0,
   PLAYER_1_TURN: 1,
   PLAYER_2_TURN: 2,
@@ -28,6 +28,7 @@ let grassStart;
 
 let currAnimation;
 let gameState = GAMESTATE.MENU;
+let actualGameState = ACTUAL_GAMESTATE.PLAYER_1_TURN;
 let isRunning = true;
 let globalDeck = [];
 let turn = 0; // player1
@@ -293,9 +294,9 @@ addEventListener("click", function (event) {
       switch (button.text) {
         case "Single Player":
           gameState = GAMESTATE.SINGLE_PLAYER;
-          player1 = new Player("left", "human", "blue");
+          player1 = new Player("left", "human", 1, "blue");
           startingHand(player1);
-          player2 = new Player("right", "cpu", "grey");
+          player2 = new Player("right", "cpu", 2, "grey");
           startingHand(player2);
           break;
         case "Card Deck":
@@ -364,13 +365,9 @@ function DrawGame(typeOfGame) {
   if (typeOfGame === GAMESTATE.SINGLE_PLAYER) {
     drawBackground();
     drawClouds();
-    drawPlayerAndCPU();
+    player1.draw();
+    player2.draw();
   }
-}
-
-function drawPlayerAndCPU() {
-  player1.draw();
-  player2.draw();
 }
 
 function gameLoop() {
@@ -412,13 +409,13 @@ function shuffleDeck(deck) {
   }
 }
 
-function drawCard(player) {
+function getCardFromDeck(player) {
   player.hand.push(globalDeck.pop());
 }
 
 function startingHand(player) {
   for (let i = 0; i < handAmount; i++) {
-    drawCard(player);
+    getCardFromDeck(player);
   }
 }
 
@@ -472,42 +469,63 @@ class PlayerStats {
       name: "Fence",
       amount: 10,
     };
+    this.statRectWidth = 50;
+    this.statRectHeight = 50;
   }
   draw() {
-    let sidePositionX;
+    let positionX;
     if (this.side == "left") {
-      sidePositionX = canvas.width * 0.1;
+      positionX = canvas.width * 0.1;
     } else {
-      sidePositionX = canvas.width * 0.9;
+      positionX = canvas.width * 0.9;
     }
+    let positionY = canvas.height;
     for (let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
+      positionY = canvas.height * (playerStatRect / 10);
       switch (playerStatRect) {
         case 1:
-          this.drawStat(0, 0, 0, 0, this.builders, this.bricks);
+          this.drawStat(
+            positionX,
+            positionY,
+            this.builders,
+            this.bricks,
+            "red",
+          );
           break;
         case 2:
-          this.drawStat(0, 0, 0, 0, this.soldiers, this.weapons);
+          this.drawStat(
+            positionX,
+            positionY,
+            this.soldiers,
+            this.weapons,
+            "green",
+          );
           break;
         case 3:
-          this.drawStat(0, 0, 0, 0, this.magic, this.crystals);
+          this.drawStat(
+            positionX,
+            positionY,
+            this.magic,
+            this.crystals,
+            "blue",
+          );
           break;
         case 4:
-          this.drawStat(0, 0, 0, 0, this.castle, this.fence);
+          this.drawStat(positionX, positionY, this.castle, this.fence, "grey");
           break;
         default:
           break;
       }
     }
   }
-  drawStat(x, y, width, height, stat1, stat2) {
-    // ctx.fillRect(x, y, width, height);
-    ctx.fillStyle = "#FF0000"; // Set the fill color to red
-    ctx.fillRect(10, 20, 150, 100); // Draw a filled rectangle at (10, 20) with width 150, height 100
+  drawStat(x, y, stat1, stat2, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, this.statRectWidth, this.statRectHeight);
 
-    // 2. Add the text (drawn on top of the rectangle)
-    ctx.fillStyle = "#FFFFFF"; // Set the text color to white
-    ctx.font = "20px Arial"; // Define the font style and size
-    ctx.fillText(stat1.name + stat1.amount, 20, 75); // Draw "Hello World" at (20, 75)
+    ctx.fillStyle = "#000000ff";
+    ctx.font = "20px Times New Roman";
+    ctx.fillText(stat1.name + " " + stat1.amount, x, y);
+    ctx.fillText(stat2.name + " " + stat2.amount, x, y + 20);
   }
 }
 
@@ -515,9 +533,10 @@ class PlayerStats {
 class Player {
   // 'left'
   // 'human' | 'cpu'
-  constructor(side, kind, color) {
+  constructor(side, kind, number, color) {
     this.side = side;
     this.kind = kind;
+    this.number = number;
     this.color = color;
     this.hand = [];
     this.playerStats = new PlayerStats(this.side);
@@ -526,10 +545,17 @@ class Player {
     DrawCastle(this.color, this.playerStats.castle.amount, this.side);
     drawFence(this.side, this.playerStats.fence.amount);
     this.playerStats.draw();
-    if (this.kind === "player") {
+    if (
+      (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN &&
+        this.number === 1) ||
+      (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN && this.number === 2)
+    ) {
+      if (this.kind === "player") {
+      } else if (this.kind === "cpu") {
+        // drawCardsFaceDown
+      }
       // drawCardsFaceUp
-    } else if (this.kind === "cpu") {
-      // drawCardsFaceDown
+      // console.log(this.hand);
     }
   }
 }
