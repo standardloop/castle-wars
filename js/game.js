@@ -44,8 +44,8 @@ function DrawMenu() {
 function initClouds() {
   for (let i = 0; i < numOfClouds; i++) {
     const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height * 0.4; // upper half
-    const speed = (Math.random() * 1) * 0.3;
+    const y = Math.random() * canvas.height * 0.5; // upper half
+    const speed = getRandomArbitrary(0.1, 0.3);
     const size = (Math.random() * 30) + 15;
     clouds.push(new Cloud(x, y, speed, size));
   }
@@ -85,22 +85,44 @@ class Cloud {
         this.x += this.speed;
         if (this.x > canvas.width + this.size * 1.5) {
             this.x = -this.size * 1.5;
-            this.y = Math.random() * canvas.height * 0.6;
-            this.speed = (Math.random() * 1) * 0.3;
+            this.y = Math.random() * canvas.height * 0.5;
+            this.speed = getRandomArbitrary(0.1, 0.3);
         }
     }
+}
+
+function flipCoin() {
+  const result = Math.random();
+  if (result < 0.5) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
 }
 
 // CLOUDS END
 
 // CASTLE START
 
-const brickHeight = 100;
-const brickWidth = 10;
+const brickWidth = (225 / 2);
+const brickHeight = (75 / 2);
 
-// todo
-function drawBrick(color, size, location) {
+const castleWidth = 10
 
+// TODO
+function drawBrick(x, y, width, height) {
+  ctx.fillRect(x, y, width, height);
+  // ctx.beginPath();
+  // ctx.strokeStyle = 'white';
+  // ctx.lineWidth = 2;
+  // ctx.moveTo(x, y);
+  // ctx.lineTo(x + width, y);
+  // ctx.stroke();
+  // ctx.closePath();
 }
 
 // fixme
@@ -109,20 +131,22 @@ function DrawCastle(color, bricksHigh, side) {
   ctx.fillStyle = color
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
+  let flipper = 1;
   let sidePosition;
   if (side == "left") {
-      sidePosition = canvas.width * 0.20;
+      sidePositionX = canvas.width * 0.20;
   } else {
-      sidePosition = canvas.width * 0.70
+      sidePositionX = canvas.width * 0.80;
+      flipper = -1;
   }
 
-  let castleStart = grassStart;
-
+  let castleStartY = grassStart;
+  drawBrick(sidePositionX, (castleStartY) - brickHeight, brickWidth * flipper, brickHeight);
   for (let layersY = 0; layersY < bricksHigh; layersY++) {
-    for (let layersX = 0; layersX < 100; layersX++) {
-      ctx.fillRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
-      //ctx.strokeRect(sidePosition, (castleStart) - brickHeight - layersY, layersX - brickWidth, brickHeight);
+    for (let layersX = 0; layersX < castleWidth; layersX++) {
+      //drawBrick(sidePositionX, (castleStart) - brickHeight - layersY, layersX + (brickWidth * flipper), brickHeight);
     }
+    
   }
 }
 // CASTLE END
