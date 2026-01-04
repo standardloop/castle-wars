@@ -556,6 +556,11 @@ class Player {
       }
       // drawCardsFaceUp
       // console.log(this.hand);
+      let cardStart = 0;
+      for (let card = 0; card < this.hand.length; card++) {
+        this.hand[card].draw(cardStart);
+        cardStart += this.hand[card].rectWidth + 5;
+      }
     }
   }
 }
@@ -599,40 +604,66 @@ function createDefaultDeck() {
 }
 
 function addWeaponsCards(defaultDeck) {
+  const cardType = CARD_TYPES.WEAPONS;
   const archerCards = 3;
   for (let i = 0; i < archerCards; i++) {
     defaultDeck.push(
-      new Card("Archer", { weapons: -1 }, { enemy: [{ health: -2 }] }),
+      new Card(
+        "Archer",
+        { weapons: -1 },
+        { enemy: [{ health: -2 }] },
+        cardType,
+      ),
     );
   }
   const knightCards = 3;
   for (let i = 0; i < knightCards; i++) {
     defaultDeck.push(
-      new Card("Knight", { weapons: -1 }, { enemy: [{ health: -3 }] }),
+      new Card(
+        "Knight",
+        { weapons: -1 },
+        { enemy: [{ health: -3 }] },
+        cardType,
+      ),
     );
   }
   const riderCards = 3;
   for (let i = 0; i < riderCards; i++) {
     defaultDeck.push(
-      new Card("Rider", { weapons: -2 }, { enemy: [{ health: -4 }] }),
+      new Card("Rider", { weapons: -2 }, { enemy: [{ health: -4 }] }, cardType),
     );
   }
   const platoonCards = 3;
   for (let i = 0; i < platoonCards; i++) {
     defaultDeck.push(
-      new Card("Platoon", { weapons: -4 }, { enemy: [{ health: -6 }] }),
+      new Card(
+        "Platoon",
+        { weapons: -4 },
+        { enemy: [{ health: -6 }] },
+        cardType,
+      ),
     );
   }
   const recruitCards = 3;
   for (let i = 0; i < recruitCards; i++) {
     defaultDeck.push(
-      new Card("Recruit", { weapons: -8 }, { self: [{ soldiers: 1 }] }),
+      new Card(
+        "Recruit",
+        { weapons: -8 },
+        { self: [{ soldiers: 1 }] },
+        cardType,
+      ),
     );
   }
   const attackCards = 2;
   for (let i = 0; i < attackCards; i++) {
     defaultDeck.push(
-      new Card("Attack", { weapons: -10 }, { enemy: [{ health: -12 }] }),
+      new Card(
+        "Attack",
+        { weapons: -10 },
+        { enemy: [{ health: -12 }] },
+        cardType,
+      ),
     );
   }
   const saboteurCards = 2;
@@ -642,6 +673,7 @@ function addWeaponsCards(defaultDeck) {
         "Saboteur",
         { weapons: -12 },
         { enemy: [{ bricks: -4 }, { crystals: -4 }, { weapons: -4 }] },
+        cardType,
       ),
     );
   }
@@ -655,6 +687,7 @@ function addWeaponsCards(defaultDeck) {
           self: [{ bricks: 5 }, { crystals: 5 }, { weapons: 5 }],
           enemy: [{ bricks: -5 }, { crystals: -5 }, { weapons: -5 }],
         },
+        cardType,
       ),
     );
   }
@@ -667,6 +700,7 @@ function addWeaponsCards(defaultDeck) {
         {
           enemy: [{ castle: -10 }],
         },
+        cardType,
       ),
     );
   }
@@ -679,28 +713,30 @@ function addWeaponsCards(defaultDeck) {
         {
           enemy: [{ health: -32 }],
         },
+        cardType,
       ),
     );
   }
 }
 
 function addBricksCards(defaultDeck) {
+  const cardType = CARD_TYPES.BRICKS;
   const wallCards = 3;
   for (let i = 0; i < wallCards; i++) {
     defaultDeck.push(
-      new Card("Wall", { bricks: -1 }, { self: [{ fence: 3 }] }),
+      new Card("Wall", { bricks: -1 }, { self: [{ fence: 3 }] }, cardType),
     );
   }
   const baseCards = 3;
   for (let i = 0; i < baseCards; i++) {
     defaultDeck.push(
-      new Card("Base", { bricks: -1 }, { self: [{ castle: 2 }] }),
+      new Card("Base", { bricks: -1 }, { self: [{ castle: 2 }] }, cardType),
     );
   }
   const defenceCards = 3;
   for (let i = 0; i < defenceCards; i++) {
     defaultDeck.push(
-      new Card("Defence", { bricks: -3 }, { self: [{ fence: 6 }] }),
+      new Card("Defence", { bricks: -3 }, { self: [{ fence: 6 }] }, cardType),
     );
   }
   const reserveCards = 3;
@@ -710,19 +746,20 @@ function addBricksCards(defaultDeck) {
         "Reserve",
         { bricks: -3 },
         { self: [{ fence: -4 }, { castle: 8 }] },
+        cardType,
       ),
     );
   }
   const towerCards = 3;
   for (let i = 0; i < towerCards; i++) {
     defaultDeck.push(
-      new Card("Tower", { bricks: -6 }, { self: [{ castle: 5 }] }),
+      new Card("Tower", { bricks: -6 }, { self: [{ castle: 5 }] }, cardType),
     );
   }
   const schoolCards = 3;
   for (let i = 0; i < schoolCards; i++) {
     defaultDeck.push(
-      new Card("School", { bricks: -8 }, { self: [{ builders: 1 }] }),
+      new Card("School", { bricks: -8 }, { self: [{ builders: 1 }] }, cardType),
     );
   }
   const wainCards = 2;
@@ -732,40 +769,80 @@ function addBricksCards(defaultDeck) {
         "Wain",
         { bricks: -10 },
         { self: [{ castle: 8 }], enemy: [{ castle: -4 }] },
+        cardType,
       ),
     );
   }
   const fenceCards = 2;
   for (let i = 0; i < fenceCards; i++) {
     defaultDeck.push(
-      new Card("Fence", { bricks: -12 }, { self: [{ fence: 22 }] }),
+      new Card("Fence", { bricks: -12 }, { self: [{ fence: 22 }] }, cardType),
     );
   }
   const fortCards = 2;
   for (let i = 0; i < fortCards; i++) {
     defaultDeck.push(
-      new Card("Fort", { bricks: -18 }, { self: [{ castle: 20 }] }),
+      new Card("Fort", { bricks: -18 }, { self: [{ castle: 20 }] }, cardType),
     );
   }
   const babylonCards = 2;
   for (let i = 0; i < babylonCards; i++) {
     defaultDeck.push(
-      new Card("Babylon", { bricks: -39 }, { self: [{ castle: 32 }] }),
+      new Card(
+        "Babylon",
+        { bricks: -39 },
+        { self: [{ castle: 32 }] },
+        cardType,
+      ),
     );
   }
 }
+
+const CARD_TYPES = Object.freeze({
+  BRICKS: 0,
+  WEAPONS: 1,
+  CRYSTALS: 2,
+});
 
 class Card {
   // "Wain"
   // {bricks: -10}
   // {self: [{castle: 8}], enemy: [{castle: -4}]}
-  constructor(name, cost, effect) {
+  constructor(name, cost, effect, kind) {
     this.name = name;
     this.cost = cost;
     this.effect = effect;
+    this.kind = kind;
+    this.rectWidth = 5 * 10;
+    this.rectHeight = 7 * 10;
   }
 
-  draw() {}
+  draw(x) {
+    let color;
+    switch (this.kind) {
+      case CARD_TYPES.BRICKS:
+        color = "red";
+        break;
+      case CARD_TYPES.WEAPONS:
+        color = "green";
+        break;
+      case CARD_TYPES.CRYSTALS:
+        color = "blue";
+        break;
+      default:
+        color = "grey";
+        break;
+    }
+    const y = grassStart;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
+
+    ctx.fillStyle = "#000000ff";
+    ctx.font = "10px Times New Roman";
+    let textY = y + this.rectHeight / 2;
+    let textX = x + this.rectWidth / 2;
+    ctx.fillText(this.name, textX, textY);
+  }
 }
 
 // DECK END
