@@ -652,9 +652,10 @@ function createDefaultDeck() {
 
   addBricksCards(defaultDeck);
   addWeaponsCards(defaultDeck);
+  addCrystalsCards(defaultDeck);
 
-  //addCrystalsCards(defaultDeck);
   shuffleDeck(defaultDeck);
+
   return defaultDeck;
 }
 
@@ -670,6 +671,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Fence", amount: 3 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -684,6 +686,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Castle", amount: 2 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -698,6 +701,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Fence", amount: 6 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -715,6 +719,7 @@ function addBricksCards(defaultDeck) {
             { resource: "Castle", amount: 8 },
           ],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -729,6 +734,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Castle", amount: 5 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -743,6 +749,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Builders", amount: 1 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -757,6 +764,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Castle", amount: 8 }],
           enemy: [{ resource: "Castle", amount: 4 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -771,6 +779,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Fence", amount: 22 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -785,6 +794,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Castle", amount: 20 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -799,6 +809,7 @@ function addBricksCards(defaultDeck) {
         {
           self: [{ resource: "Castle", amount: 32 }],
           enemy: [],
+          transfer: [],
         },
         cardType,
       ),
@@ -818,6 +829,7 @@ function addWeaponsCards(defaultDeck) {
         {
           self: [],
           enemy: [{ resource: "Health", amount: 2 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -832,6 +844,7 @@ function addWeaponsCards(defaultDeck) {
         {
           self: [],
           enemy: [{ resource: "Health", amount: 3 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -846,6 +859,7 @@ function addWeaponsCards(defaultDeck) {
         {
           self: [],
           enemy: [{ resource: "Health", amount: 4 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -857,7 +871,11 @@ function addWeaponsCards(defaultDeck) {
       new Card(
         "Platoon",
         { resource: resourceName, amount: 4 },
-        { self: [], enemy: [{ resource: "Health", amount: 6 }] },
+        {
+          self: [],
+          enemy: [{ resource: "Health", amount: 6 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -868,7 +886,11 @@ function addWeaponsCards(defaultDeck) {
       new Card(
         "Recruit",
         { resource: resourceName, amount: 8 },
-        { self: [{ soldiers: 1 }], enemy: [] },
+        {
+          self: [{ soldiers: 1 }],
+          enemy: [],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -879,7 +901,11 @@ function addWeaponsCards(defaultDeck) {
       new Card(
         "Attack",
         { resource: resourceName, amount: 10 },
-        { self: [], enemy: [{ resource: "Health", amount: 12 }] },
+        {
+          self: [],
+          enemy: [{ resource: "Health", amount: 12 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -897,6 +923,7 @@ function addWeaponsCards(defaultDeck) {
             { resource: "Crystals", amount: 4 },
             { resoucre: "Weapons", amount: 4 },
           ],
+          transfer: [],
         },
         cardType,
       ),
@@ -909,6 +936,8 @@ function addWeaponsCards(defaultDeck) {
         "Thief",
         { resource: resourceName, amount: 15 },
         {
+          self: [],
+          enemy: [],
           transfer: [
             { resource: "Bricks", amount: 5 },
             { resource: "Crystals", amount: 5 },
@@ -928,6 +957,7 @@ function addWeaponsCards(defaultDeck) {
         {
           self: [],
           enemy: [{ resource: "Castle", amount: 10 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -942,6 +972,7 @@ function addWeaponsCards(defaultDeck) {
         {
           self: [],
           enemy: [{ resource: "Health", amount: 32 }],
+          transfer: [],
         },
         cardType,
       ),
@@ -952,13 +983,18 @@ function addWeaponsCards(defaultDeck) {
 // FIXME new datastructure
 function addCrystalsCards(defaultDeck) {
   const cardType = CARD_TYPES.CRYSTALS;
+  const resourceName = "Crystals";
   const conjureBricksCards = 3;
   for (let i = 0; i < conjureBricksCards; i++) {
     defaultDeck.push(
       new Card(
         "Conjure bricks",
-        { crystals: 4 },
-        { self: [{ bricks: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [{ resource: "Bricks", amount: 8 }],
+          enemy: [],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -968,8 +1004,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Conjure crystals",
-        { crystals: 4 },
-        { self: [{ crystals: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [{ resource: "Crystals", amount: 8 }],
+          enemy: [],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -979,8 +1019,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Conjure weapons",
-        { crystals: 4 },
-        { self: [{ weapons: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [{ resource: "Weapons", amount: 8 }],
+          enemy: [],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -990,8 +1034,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Crush bricks",
-        { crystals: 4 },
-        { enemy: [{ bricks: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [],
+          enemy: [{ resource: "Bricks", amount: 8 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -1001,8 +1049,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Crush crystals",
-        { crystals: 4 },
-        { enemy: [{ crystals: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [],
+          enemy: [{ resource: "Crystals", amount: 8 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -1012,8 +1064,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Crush weapons",
-        { crystals: 4 },
-        { enemy: [{ weapons: 8 }] },
+        { resource: resourceName, amount: 4 },
+        {
+          self: [],
+          enemy: [{ resource: "Weapons", amount: 8 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -1021,7 +1077,16 @@ function addCrystalsCards(defaultDeck) {
   const sorcererCards = 3;
   for (let i = 0; i < sorcererCards; i++) {
     defaultDeck.push(
-      new Card("Sorcerer", { crystals: 8 }, { self: [{ magic: 1 }] }, cardType),
+      new Card(
+        "Sorcerer",
+        { resource: resourceName, amount: 8 },
+        {
+          self: [{ resource: "Magic", amount: 1 }],
+          enemy: [],
+          transfer: [],
+        },
+        cardType,
+      ),
     );
   }
   const dragonCards = 2;
@@ -1029,8 +1094,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Dragon",
-        { crystals: 21 },
-        { enemy: [{ Health: 25 }] },
+        { resource: resourceName, amount: 21 },
+        {
+          self: [],
+          enemy: [{ Health: 25 }],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -1040,8 +1109,12 @@ function addCrystalsCards(defaultDeck) {
     defaultDeck.push(
       new Card(
         "Pixies",
-        { crystals: 22 },
-        { self: [{ castle: 22 }] },
+        { resource: resourceName, amount: 22 },
+        {
+          self: [{ resource: "Castle", amount: 22 }],
+          enemy: [],
+          transfer: [],
+        },
         cardType,
       ),
     );
@@ -1049,7 +1122,25 @@ function addCrystalsCards(defaultDeck) {
   const curseCard = 2;
   for (let i = 0; i < curseCard; i++) {
     defaultDeck.push(
-      new Card("Curse", { crystals: 45 }, { transfer: [{ all: 1 }] }, cardType),
+      new Card(
+        "Curse",
+        { resource: resourceName, amount: 45 },
+        {
+          self: [],
+          enemy: [],
+          transfer: [
+            { resource: "Builders", amount: 1 },
+            { resource: "Bricks", amount: 1 },
+            { resource: "Soldiers", amount: 1 },
+            { resource: "Weapons", amount: 1 },
+            { resource: "Crystals", amount: 1 },
+            { resource: "Magic", amount: 1 },
+            { resource: "Castle", amount: 1 },
+            { resource: "Fence", amount: 1 },
+          ],
+        },
+        cardType,
+      ),
     );
   }
 }
@@ -1062,7 +1153,7 @@ const CARD_TYPES = Object.freeze({
 
 class Card {
   // "Wain"
-  // {bricks: 10}
+  // {resource: "Bricks", amount:10}
   // {self: [{castle: 8}], enemy: [{castle: 4}]}
   constructor(name, cost, effect, kind) {
     this.name = name;
