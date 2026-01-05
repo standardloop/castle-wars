@@ -342,7 +342,10 @@ addEventListener("click", (event) => {
           }
         }
       });
-    } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+    } else if (
+      actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN &&
+      player2.kind === "human"
+    ) {
       player2.hand.forEach((card) => {
         if (card.inBounds(mouseX, mouseY)) {
           if (event.shiftKey) {
@@ -389,7 +392,7 @@ function playCard(card) {
     player = player2;
     enemy = player1;
   }
-  console.log(`Player ${player.number} is played card ${card.name}`);
+  console.log(`Player ${player.number} played card ${card.name}`);
   card.effect.self.forEach((effect) => {
     player.stats[effect.resource] += effect.amount;
     // cover case with Reserve card, in future, make this a gamesetting.
@@ -565,7 +568,13 @@ function drawWhoIsPlaying() {
   if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
     playerText = "Player 1";
   } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
-    playerText = "Player 2";
+    // fixme switch to enum
+    if (player2.kind === "human") {
+      playerText = "Player 2";
+    } else if (player2.kind === "cpu") {
+      playerText = "CPU";
+    }
+
     // FIXME add support for CPU ?;
   }
 
@@ -602,6 +611,14 @@ function gameLoop() {
         globalDeck = createDefaultDeck();
         shuffleDeck(globalDeck);
       }
+      if (
+        gameState === GAMESTATE.SINGLE_PLAYER &&
+        actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN &&
+        player2.kind === "cpu"
+      ) {
+        // play for CPU
+        cpuPlay();
+      }
       break;
     case GAMESTATE.CARD_DECK:
       DrawCardDeck();
@@ -610,6 +627,23 @@ function gameLoop() {
       break;
   }
   currAnimation = requestAnimationFrame(gameLoop);
+}
+
+// trivial cpu
+// selects a card at random, if can play, play, if can't then discard
+function cpuPlay() {
+  let randomIndexToPlay = Math.floor(Math.random() * 8);
+  let card = player2.hand[randomIndexToPlay];
+  if (canPlayerPlayCard(player2.stats, card)) {
+    playCard(card);
+  } else {
+    let cardDup = card;
+    removeCardFromHand(player2, card);
+    addCardToGlobalDeck(cardDup);
+    console.log(`cpu discarded ${card.name}!`);
+    resourceMakersMakeResources(player2);
+    switchTurns();
+  }
 }
 
 window.onload = () => {
