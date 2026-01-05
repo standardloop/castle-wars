@@ -150,7 +150,6 @@ function drawBrick(x, y, width, height, drawBorder) {
   }
 }
 
-// fixme
 function DrawCastle(color, bricksHigh, side) {
   // console.log("DrawCastle")
   ctx.fillStyle = color;
@@ -284,7 +283,7 @@ function DrawMenuButtons() {
   menuButtons.forEach((button) => button.draw());
 }
 
-addEventListener("click", function (event) {
+addEventListener("click", (event) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
@@ -301,6 +300,14 @@ addEventListener("click", function (event) {
             player2 = new Player("right", "cpu", 2, "grey");
             startingHand(player2);
             break;
+          case "Two Player":
+            gameState = GAMESTATE.TWO_PLAYER;
+            player1 = new Player("left", "human", 1, "blue");
+            startingHand(player1);
+            player2 = new Player("right", "human", 2, "red");
+            startingHand(player2);
+            break;
+          // TODO
           case "Card Deck":
             gameState = GAMESTATE.CARD_DECK;
           default:
@@ -309,21 +316,64 @@ addEventListener("click", function (event) {
         isRunning = false;
       }
     });
-  } else if (gameState === GAMESTATE.SINGLE_PLAYER) {
+  } else if (
+    gameState === GAMESTATE.SINGLE_PLAYER ||
+    gameState === GAMESTATE.TWO_PLAYER
+  ) {
     // check all cards
     if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
       player1.hand.forEach((card) => {
         if (card.inBounds(mouseX, mouseY)) {
           if (canPlayerPlayCard(player1.stats, card)) {
             playCard(card);
+          } else if (event.shiftKey) {
+            let cardDup = card;
+            removeCardFromHand(player1, card);
+            addCardToGlobalDeck(cardDup);
+            console.log(`discarded ${card.name}!`);
+            resourceMakersMakeResources(player1);
+            switchTurns();
           } else {
-            alert(`Clicked ${card.name}, but card cannot be played!`);
+            alert(
+              `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
+            );
+          }
+        }
+      });
+    } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+      player2.hand.forEach((card) => {
+        if (card.inBounds(mouseX, mouseY)) {
+          if (canPlayerPlayCard(player2.stats, card)) {
+            playCard(card);
+          } else if (event.shiftKey) {
+            let cardDup = card;
+            removeCardFromHand(player2, card);
+            addCardToGlobalDeck(cardDup);
+            console.log(`discarded ${card.name}!`);
+            resourceMakersMakeResources(player2);
+            switchTurns();
+          } else {
+            alert(
+              `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
+            );
           }
         }
       });
     }
   }
 });
+
+// FIXME, magic and hardcoded for now
+function cardXPosToIndex(card) {
+  if (card.x === null) {
+    alert("CRASH");
+    return null;
+  } else if (card.x === 0) {
+    return 0;
+  }
+  const cardPadding = 5;
+  return card.x / (card.rectWidth + cardPadding);
+}
 
 function playCard(card) {
   let player;
@@ -354,13 +404,16 @@ function playCard(card) {
       }
     } else {
       enemy.stats[effect.resource] -= effect.amount;
+      if (enemy.stats[effect.resource]) {
+        enemy.stats[effect.resource] = 0;
+      }
     }
   });
 
   // Thief and Curse cards
   card.effect.transfer.forEach((effect) => {
-    enemy[effect.resource] -= effect.amount;
-    player[effect.resource] += amountSubtracted;
+    enemy.stats[effect.resource] -= effect.amount;
+    player.stats[effect.resource] += effect.amount;
   });
 
   player.stats[card.cost.resource] -= card.cost.amount;
@@ -379,6 +432,38 @@ function playCard(card) {
     actualGameState = ACTUAL_GAMESTATE.PLAYER_2_WIN;
     alert("Player 2 wins!!!");
   }
+  let cardDup = card;
+  removeCardFromHand(player, card);
+  addCardToGlobalDeck(cardDup);
+  resourceMakersMakeResources(player);
+  switchTurns();
+}
+
+// FIXME so dirty
+function removeCardFromHand(player, card) {
+  let index = cardXPosToIndex(card);
+  shuffleDeck(globalDeck);
+  player.hand[index] = globalDeck.pop();
+}
+
+function addCardToGlobalDeck(card) {
+  card.x = null;
+  card.y = null;
+  globalDeck.push(card);
+}
+
+function switchTurns() {
+  if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+    actualGameState = ACTUAL_GAMESTATE.PLAYER_2_TURN;
+  } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+    actualGameState = ACTUAL_GAMESTATE.PLAYER_1_TURN;
+  }
+}
+
+function resourceMakersMakeResources(player) {
+  player.stats["Bricks"] += player.stats["Builders"];
+  player.stats["Weapons"] += player.stats["Soldiers"];
+  player.stats["Crystals"] += player.stats["Magic"];
 }
 
 // maybe we should pass playerHand here lol;
@@ -451,12 +536,35 @@ function drawFence(side, bricksHigh) {
 }
 
 function DrawGame(typeOfGame) {
-  if (typeOfGame === GAMESTATE.SINGLE_PLAYER) {
+  if (
+    typeOfGame === GAMESTATE.SINGLE_PLAYER ||
+    typeOfGame === GAMESTATE.TWO_PLAYER
+  ) {
     drawBackground();
     drawClouds();
+    drawWhoIsPlaying();
     player1.draw();
     player2.draw();
   }
+}
+
+function drawWhoIsPlaying() {
+  let playerText;
+  if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+    playerText = "Player 1";
+  } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+    playerText = "Player 2";
+    // FIXME add support for CPU ?;
+  }
+
+  ctx.fillStyle = "#000000ff";
+  ctx.font = "40px Times New Roman";
+  let textY = canvas.height / 2;
+  let textX = canvas.width / 2;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.fillText(playerText, textX, textY);
 }
 
 function gameLoop() {
@@ -467,8 +575,10 @@ function gameLoop() {
     case GAMESTATE.MENU:
       DrawMenu();
       break;
+    // single player and two player are same except for cpu choosing turns.
+    case GAMESTATE.TWO_PLAYER:
     case GAMESTATE.SINGLE_PLAYER:
-      DrawGame(GAMESTATE.SINGLE_PLAYER);
+      DrawGame(gameState);
       if (
         actualGameState === ACTUAL_GAMESTATE.PLAYER_1_WIN ||
         actualGameState === ACTUAL_GAMESTATE.PLAYER_2_WIN
@@ -564,7 +674,7 @@ class Player {
           this.hand[card],
         );
         this.hand[card].draw(cardStart, cardCanBePlayedBool);
-        cardStart += this.hand[card].rectWidth + 5;
+        cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
       }
     }
   }
@@ -655,10 +765,6 @@ function DrawCardDeck() {
   DrawCastle("blue", 50, "left");
   DrawCastle("red", 50, "right");
   drawCards();
-}
-
-function drawCards() {
-  //
 }
 
 function createDefaultDeck() {
