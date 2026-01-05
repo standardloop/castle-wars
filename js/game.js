@@ -337,9 +337,9 @@ function playCard(card) {
   }
   card.effect.self.forEach((effect) => {
     player.stats[effect.resource] += effect.amount;
+    // cover case with Reserve card, in future, make this a gamesetting.
     if (player.stats["Fence"] < 0) {
       player.stats["Fence"] = 0;
-      // cover case with Reserve card, in future, make this a gamesetting.
     }
   });
 
@@ -352,6 +352,8 @@ function playCard(card) {
         enemy.stats["Castle"] += enemy.stats["Fence"];
         enemy.stats["Fence"] = 0;
       }
+    } else {
+      enemy.stats[effect.resource] -= effect.amount;
     }
   });
 
@@ -1108,7 +1110,7 @@ function addCrystalsCards(defaultDeck) {
         { resource: resourceName, amount: 21 },
         {
           self: [],
-          enemy: [{ Health: 25 }],
+          enemy: [{ resource: "Health", amount: 25 }],
           transfer: [],
         },
         cardType,
