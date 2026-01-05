@@ -324,38 +324,42 @@ addEventListener("click", (event) => {
     if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
       player1.hand.forEach((card) => {
         if (card.inBounds(mouseX, mouseY)) {
-          if (canPlayerPlayCard(player1.stats, card)) {
-            playCard(card);
-          } else if (event.shiftKey) {
+          if (event.shiftKey) {
             let cardDup = card;
             removeCardFromHand(player1, card);
             addCardToGlobalDeck(cardDup);
-            console.log(`discarded ${card.name}!`);
+            console.log(`Player 1 discarded ${card.name}!`);
             resourceMakersMakeResources(player1);
             switchTurns();
           } else {
-            alert(
-              `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
-            );
+            if (canPlayerPlayCard(player1.stats, card)) {
+              playCard(card);
+            } else {
+              alert(
+                `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
+              );
+            }
           }
         }
       });
     } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
       player2.hand.forEach((card) => {
         if (card.inBounds(mouseX, mouseY)) {
-          if (canPlayerPlayCard(player2.stats, card)) {
-            playCard(card);
-          } else if (event.shiftKey) {
+          if (event.shiftKey) {
             let cardDup = card;
             removeCardFromHand(player2, card);
             addCardToGlobalDeck(cardDup);
-            console.log(`discarded ${card.name}!`);
+            console.log(`Player 2 discarded ${card.name}!`);
             resourceMakersMakeResources(player2);
             switchTurns();
           } else {
-            alert(
-              `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
-            );
+            if (canPlayerPlayCard(player2.stats, card)) {
+              playCard(card);
+            } else {
+              alert(
+                `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard!`,
+              );
+            }
           }
         }
       });
@@ -385,6 +389,7 @@ function playCard(card) {
     player = player2;
     enemy = player1;
   }
+  console.log(`Player ${player.number} is played card ${card.name}`);
   card.effect.self.forEach((effect) => {
     player.stats[effect.resource] += effect.amount;
     // cover case with Reserve card, in future, make this a gamesetting.
@@ -404,7 +409,7 @@ function playCard(card) {
       }
     } else {
       enemy.stats[effect.resource] -= effect.amount;
-      if (enemy.stats[effect.resource]) {
+      if (enemy.stats[effect.resource] < 0) {
         enemy.stats[effect.resource] = 0;
       }
     }
@@ -412,8 +417,14 @@ function playCard(card) {
 
   // Thief and Curse cards
   card.effect.transfer.forEach((effect) => {
-    enemy.stats[effect.resource] -= effect.amount;
-    player.stats[effect.resource] += effect.amount;
+    let amountSupposedToDeduct = effect.amount;
+    if (enemy.stats[effect.resource] < amountSupposedToDeduct) {
+      amountSupposedToDeduct = enemy.stats[effect.resource];
+      enemy.stats[effect.resource] = 0;
+    } else {
+      enemy.stats[effect.resource] -= effect.amount;
+      player.stats[effect.resource] += effect.amount;
+    }
   });
 
   player.stats[card.cost.resource] -= card.cost.amount;
@@ -432,6 +443,7 @@ function playCard(card) {
     actualGameState = ACTUAL_GAMESTATE.PLAYER_2_WIN;
     alert("Player 2 wins!!!");
   }
+
   let cardDup = card;
   removeCardFromHand(player, card);
   addCardToGlobalDeck(cardDup);
@@ -1007,7 +1019,7 @@ function addWeaponsCards(defaultDeck) {
         "Recruit",
         { resource: resourceName, amount: 8 },
         {
-          self: [{ soldiers: 1 }],
+          self: [{ resource: "Soldiers", amount: 1 }],
           enemy: [],
           transfer: [],
         },
