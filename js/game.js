@@ -20,6 +20,7 @@ const ACTUAL_GAMESTATE = Object.freeze({
 
 let canvas;
 let ctx;
+
 let clouds = [];
 const numOfClouds = 10;
 const cloudColor = "#FFFFFF"; // White clouds
@@ -501,9 +502,22 @@ function canPlayerPlayCard(stats, card) {
 // BUTTON END
 
 // TODO, handle pixel scaling and blurry text
+function setupHighDPICanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  canvas.style.width = `${rect.width}px`;
+  canvas.style.height = `${rect.height}px`;
+}
+
 function init() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const bound = canvas.getBoundingClientRect();
+  canvas.width = bound.width;
+  canvas.height = bound.height;
+  // setupHighDPICanvas();
   clearClouds();
   clearMenuButtons();
   initClouds();
