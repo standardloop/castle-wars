@@ -55,8 +55,8 @@ function DrawMenu() {
 // CLOUDS START
 function initClouds() {
   for (let i = 0; i < numOfClouds; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height * 0.5; // upper half
+    const x = Math.random() * getCanvasWidth();
+    const y = Math.random() * getCanvasHeight() * 0.5; // upper half
     const speed = getRandomArbitrary(0.1, 0.3);
     const size = Math.random() * 30 + 15;
     clouds.push(new Cloud(x, y, speed, size));
@@ -109,7 +109,7 @@ class Cloud {
     this.x += this.speed;
     if (this.x > canvas.width + this.size * 1.5) {
       this.x = -this.size * 1.5;
-      this.y = Math.random() * canvas.height * 0.5;
+      this.y = Math.random() * getCanvasHeight() * 0.5;
       this.speed = getRandomArbitrary(0.1, 0.3);
     }
   }
@@ -159,9 +159,9 @@ function DrawCastle(color, bricksHigh, side) {
   let flipper = 1;
   let sidePositionX;
   if (side == "left") {
-    sidePositionX = canvas.width * 0.2;
+    sidePositionX = getCanvasWidth() * 0.2;
   } else {
-    sidePositionX = canvas.width * 0.8;
+    sidePositionX = getCanvasWidth() * 0.8;
     flipper = -1;
   }
 
@@ -192,8 +192,8 @@ function drawTitle() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  const x = canvas.width * 0.5;
-  const y = canvas.height * 0.2;
+  const x = getCanvasWidth() * 0.5;
+  const y = getCanvasHeight() * 0.2;
 
   ctx.strokeStyle = textColor;
   ctx.lineWidth = borderWidth;
@@ -261,8 +261,8 @@ class Button {
   }
 }
 function drawMenuButtons(buttonName, buttonIndex) {
-  let x = canvas.width * 0.5 - 60;
-  let y = canvas.height * (0.32 + 0.1 * buttonIndex) - 25;
+  let x = getCanvasWidth() * 0.5 - 60;
+  let y = getCanvasHeight() * (0.32 + 0.1 * buttonIndex) - 25;
 
   let width = 120;
   let height = 50;
@@ -509,19 +509,19 @@ function setupHighDPICanvas() {
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
   ctx.scale(dpr, dpr);
-  // canvas.style.width = `${rect.width}px`;
-  // canvas.style.height = `${rect.height}px`;
+  canvas.style.width = `${rect.width}px`;
+  canvas.style.height = `${rect.height}px`;
 }
 
 function init() {
-  const bound = canvas.getBoundingClientRect();
-  canvas.width = bound.width;
-  canvas.height = bound.height;
-  // setupHighDPICanvas();
+  // const bound = canvas.getBoundingClientRect();
+  // canvas.width = bound.width;
+  // canvas.height = bound.height;
+  setupHighDPICanvas();
   clearClouds();
   clearMenuButtons();
   initClouds();
-  grassStart = canvas.height / 1.3;
+  grassStart = getCanvasHeight() / 1.3;
   // if (gameState == GAMESTATE.MENU) {
 
   // }
@@ -542,9 +542,9 @@ function drawFence(side, bricksHigh) {
   let flipper = 1;
   let sidePositionX;
   if (side == "left") {
-    sidePositionX = canvas.width * 0.4;
+    sidePositionX = getCanvasWidth() * 0.4;
   } else {
-    sidePositionX = canvas.width * 0.6;
+    sidePositionX = getCanvasWidth() * 0.6;
     flipper = -1;
   }
 
@@ -577,6 +577,14 @@ function DrawGame(typeOfGame) {
   }
 }
 
+function getCanvasHeight() {
+  return canvas.height / 2;
+}
+
+function getCanvasWidth() {
+  return canvas.width / 2;
+}
+
 function drawWhoIsPlaying() {
   let playerText;
   if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
@@ -594,8 +602,8 @@ function drawWhoIsPlaying() {
 
   ctx.fillStyle = "#000000ff";
   ctx.font = "40px Times New Roman";
-  let textY = canvas.height / 2;
-  let textX = canvas.width / 2;
+  let textX = getCanvasWidth() / 2;
+  let textY = getCanvasHeight() / 2;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -605,7 +613,7 @@ function drawWhoIsPlaying() {
 function gameLoop() {
   // const deltaTime = timeStamp - lastTime;
   // lastTime = timeStamp;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, getCanvasWidth(), getCanvasHeight());
   switch (gameState) {
     case GAMESTATE.MENU:
       DrawMenu();
@@ -741,13 +749,13 @@ class Player {
   drawPlayerStats() {
     let positionX;
     if (this.side == "left") {
-      positionX = canvas.width * 0.1;
+      positionX = getCanvasWidth() * 0.1;
     } else {
-      positionX = canvas.width * 0.9;
+      positionX = getCanvasWidth() * 0.9;
     }
-    let positionY = canvas.height;
+    let positionY = getCanvasHeight();
     for (let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
-      positionY = canvas.height * (playerStatRect / 10);
+      positionY = getCanvasHeight() * (playerStatRect / 10);
       switch (playerStatRect) {
         case 1:
           this.drawStat(
