@@ -514,10 +514,10 @@ function setupHighDPICanvas() {
 }
 
 function init() {
-  // const bound = canvas.getBoundingClientRect();
-  // canvas.width = bound.width;
-  // canvas.height = bound.height;
-  setupHighDPICanvas();
+  const bound = canvas.getBoundingClientRect();
+  canvas.width = bound.width;
+  canvas.height = bound.height;
+  // setupHighDPICanvas();
   clearClouds();
   clearMenuButtons();
   initClouds();
