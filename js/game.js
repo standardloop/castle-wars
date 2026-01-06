@@ -311,15 +311,6 @@ addEventListener("click", (event) => {
           // TODO
           case "Card Deck":
             gameState = GAMESTATE.CARD_DECK;
-            break;
-          case "Instructions":
-            gameState = GAMESTATE.INSTRUCTIONS;
-            alert(`Not yet implemented`);
-            break;
-          case "Credits":
-            gameState = GAMESTATE.CREDITS;
-            alert(`Not yet implemented`);
-            break;
           default:
             break;
         }
@@ -441,7 +432,6 @@ function playCard(card) {
   });
 
   player.stats[card.cost.resource] -= card.cost.amount;
-  // TODO move this to function
   if (
     player.number === 1 &&
     enemy.number === 2 &&
@@ -511,12 +501,38 @@ function canPlayerPlayCard(stats, card) {
 
 // BUTTON END
 
-// do we need this?
-window
-  .matchMedia(`screen and (resolution: ${window.devicePixelRatio || 1}dppx)`)
-  .addEventListener("change", () => {
-    init();
-  });
+// TODO, handle pixel scaling and blurry text
+function setupHighDPICanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  // canvas.style.width = `${rect.width}px`;
+  // canvas.style.height = `${rect.height}px`;
+}
+
+function init() {
+  // const bound = canvas.getBoundingClientRect();
+  // canvas.width = bound.width;
+  // canvas.height = bound.height;
+  setupHighDPICanvas();
+  clearClouds();
+  clearMenuButtons();
+  initClouds();
+  grassStart = canvas.height / 1.3;
+  // if (gameState == GAMESTATE.MENU) {
+
+  // }
+  //createClouds(canvas);
+}
+
+window.addEventListener("resize", function () {
+  cancelAnimationFrame(currAnimation);
+  init();
+  requestAnimationFrame(gameLoop);
+});
 
 function drawFence(side, bricksHigh) {
   const fenceWidth = 2;
@@ -586,23 +602,6 @@ function drawWhoIsPlaying() {
   ctx.fillText(playerText, textX, textY);
 }
 
-// trivial cpu
-// selects a card at random, if can play, play, if can't then discard
-function cpuPlay() {
-  let randomIndexToPlay = Math.floor(Math.random() * 8);
-  let card = player2.hand[randomIndexToPlay];
-  if (canPlayerPlayCard(player2.stats, card)) {
-    playCard(card);
-  } else {
-    let cardDup = card;
-    removeCardFromHand(player2, card);
-    addCardToGlobalDeck(cardDup);
-    console.log(`cpu discarded ${card.name}!`);
-    resourceMakersMakeResources(player2);
-    switchTurns();
-  }
-}
-
 function gameLoop() {
   // const deltaTime = timeStamp - lastTime;
   // lastTime = timeStamp;
@@ -644,41 +643,22 @@ function gameLoop() {
   currAnimation = requestAnimationFrame(gameLoop);
 }
 
-// TODO, handle pixel scaling and blurry text
-function setupHighDPICanvas() {
-  canvas = document.getElementById("gameCanvas");
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-
-  canvas.width = Math.floor(rect.width * dpr);
-  canvas.height = Math.floor(rect.height * dpr);
-  canvas.style.width = `${rect.width}px`;
-  canvas.style.height = `${rect.height}px`;
-
-  ctx = canvas.getContext("2d");
-  ctx.scale(dpr, dpr);
+// trivial cpu
+// selects a card at random, if can play, play, if can't then discard
+function cpuPlay() {
+  let randomIndexToPlay = Math.floor(Math.random() * 8);
+  let card = player2.hand[randomIndexToPlay];
+  if (canPlayerPlayCard(player2.stats, card)) {
+    playCard(card);
+  } else {
+    let cardDup = card;
+    removeCardFromHand(player2, card);
+    addCardToGlobalDeck(cardDup);
+    console.log(`cpu discarded ${card.name}!`);
+    resourceMakersMakeResources(player2);
+    switchTurns();
+  }
 }
-
-function init() {
-  // const bound = canvas.getBoundingClientRect();
-  // canvas.width = bound.width;
-  // canvas.height = bound.height;
-  setupHighDPICanvas();
-  clearClouds();
-  clearMenuButtons();
-  initClouds();
-  grassStart = canvas.height / 1.3;
-  // if (gameState == GAMESTATE.MENU) {
-
-  // }
-  //createClouds(canvas);
-}
-
-window.addEventListener("resize", () => {
-  cancelAnimationFrame(currAnimation);
-  init();
-  requestAnimationFrame(gameLoop);
-});
 
 window.onload = () => {
   canvas = document.getElementById("gameCanvas");
