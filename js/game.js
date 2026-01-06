@@ -20,6 +20,7 @@ const ACTUAL_GAMESTATE = Object.freeze({
 
 let canvas;
 let ctx;
+let dpr;
 
 let clouds = [];
 const numOfClouds = 10;
@@ -311,6 +312,14 @@ addEventListener("click", (event) => {
           // TODO
           case "Card Deck":
             gameState = GAMESTATE.CARD_DECK;
+          case "Instructions":
+            //gameState = GAMESTATE.INSTRUCTIONS;
+            alert(`Not yet implemented`);
+            break;
+          case "Credits":
+            //gameState = GAMESTATE.CREDITS;
+            alert(`Not yet implemented`);
+            break;
           default:
             break;
         }
@@ -503,8 +512,12 @@ function canPlayerPlayCard(stats, card) {
 
 // TODO, handle pixel scaling and blurry text
 function setupHighDPICanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  // const rect = canvas.getBoundingClientRect();
+  const rect = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
 
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
