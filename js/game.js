@@ -311,6 +311,13 @@ addEventListener("click", (event) => {
           // TODO
           case "Card Deck":
             gameState = GAMESTATE.CARD_DECK;
+            break;
+          case "Instructions":
+            alert(`Not yet implemented`);
+            break;
+          case "Credits":
+            alert(`Not yet implemented`);
+            break;
           default:
             break;
         }
@@ -508,16 +515,18 @@ function setupHighDPICanvas() {
 
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
+  // canvas.style.width = `${rect.width}px`;
+  // canvas.style.height = `${rect.height}px`;
+
+  ctx = canvas.getContext("2d");
   ctx.scale(dpr, dpr);
-  canvas.style.width = `${rect.width}px`;
-  canvas.style.height = `${rect.height}px`;
 }
 
 function init() {
-  const bound = canvas.getBoundingClientRect();
-  canvas.width = bound.width;
-  canvas.height = bound.height;
-  // setupHighDPICanvas();
+  // const bound = canvas.getBoundingClientRect();
+  // canvas.width = bound.width;
+  // canvas.height = bound.height;
+  setupHighDPICanvas();
   clearClouds();
   clearMenuButtons();
   initClouds();
