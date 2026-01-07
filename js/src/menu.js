@@ -1,3 +1,6 @@
+import { DrawCastle } from "./castle.js";
+import { PLAYER_NUMBERS } from "./player.js";
+
 export class Menu {
   #canvasWidth;
   #canvasHeight;
@@ -69,6 +72,24 @@ export class Menu {
   draw() {
     this.#drawTitle();
     this.#drawMenuButtons();
+    // left
+    DrawCastle(
+      this.#ctx,
+      this.#canvasWidth,
+      this.#canvasHeight,
+      "blue",
+      50,
+      PLAYER_NUMBERS.PLAYER_1,
+    );
+    // right
+    DrawCastle(
+      this.#ctx,
+      this.#canvasWidth,
+      this.#canvasHeight,
+      "red",
+      50,
+      PLAYER_NUMBERS.PLAYER_2,
+    );
   }
 }
 

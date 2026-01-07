@@ -1,24 +1,32 @@
 import { PLAYER_NUMBERS } from "./player.js";
+import { GetGrassStart } from "./constants.js";
 
 const brickWidth = 225 / 25;
 const brickHeight = 75 / 25;
 
 const castleWidth = 10;
 
-export function DrawCastle(ctx, color, bricksHigh, playerNumber) {
+export function DrawCastle(
+  ctx,
+  canvasWidth,
+  canvasHeight,
+  color,
+  bricksHigh,
+  playerNumber,
+) {
   ctx.fillStyle = color;
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
   let sidePositionX;
   if (playerNumber === PLAYER_NUMBERS.PLAYER_1) {
-    sidePositionX = getCanvasWidth() * 0.2;
+    sidePositionX = canvasWidth * 0.2;
   } else {
-    sidePositionX = getCanvasWidth() * 0.8;
+    sidePositionX = canvasWidth * 0.8;
     flipper = -1;
   }
 
-  let castleStartY = grassStart;
+  let castleStartY = GetGrassStart(canvasHeight);
   for (let layersY = 1; layersY <= bricksHigh; layersY++) {
     for (let layersX = 1; layersX <= castleWidth; layersX++) {
       drawBrick(
@@ -33,6 +41,7 @@ export function DrawCastle(ctx, color, bricksHigh, playerNumber) {
   }
 }
 
+// FIXME
 export function DrawFence(ctx, bricksHigh, playerNumber) {
   const fenceWidth = 2;
   ctx.fillStyle = "red";
@@ -47,7 +56,7 @@ export function DrawFence(ctx, bricksHigh, playerNumber) {
     flipper = -1;
   }
 
-  let fenceStartY = grassStart;
+  let fenceStartY = GetGrassStart(1);
 
   for (let layersY = 1; layersY < bricksHigh; layersY++) {
     for (let layersX = 1; layersX <= fenceWidth; layersX++) {

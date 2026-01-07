@@ -1,4 +1,5 @@
 import { Clouds } from "./clouds.js";
+import { GetGrassStart } from "./constants.js";
 
 export class Background {
   // drawBorder();
@@ -18,19 +19,20 @@ export class Background {
     );
   }
 
-  getGrassStart() {
-    return this.#canvasHeight * 0.8;
-  }
-
   drawSky() {
     this.#ctx.fillStyle = "#87CEEB";
-    this.#ctx.fillRect(0, 0, this.#canvasWidth, this.getGrassStart());
+    this.#ctx.fillRect(
+      0,
+      0,
+      this.#canvasWidth,
+      GetGrassStart(this.#canvasHeight),
+    );
   }
   drawGrass() {
     this.#ctx.fillStyle = "#009900";
     this.#ctx.fillRect(
       0,
-      this.getGrassStart(),
+      GetGrassStart(this.#canvasHeight),
       this.#canvasWidth,
       this.#canvasHeight,
     );
