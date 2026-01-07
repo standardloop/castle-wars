@@ -1,27 +1,3 @@
-// DEF GLOBAL START
-const GAMESTATE = Object.freeze({
-  MENU: 0,
-  SINGLE_PLAYER: 1,
-  TWO_PLAYER: 2,
-  CARD_DECK: 3,
-  INSTRUCTIONS: 4,
-  CREDITS: 5,
-  PAUSE: 6,
-  GAME_OVER_SCREEN: 7,
-});
-
-const ACTUAL_GAMESTATE = Object.freeze({
-  PLAYER_1_TURN: 1,
-  PLAYER_2_TURN: 2,
-  PLAYER_1_WIN: 3,
-  PLAYER_2_WIN: 4,
-});
-
-let canvas;
-let ctx;
-let dpr;
-
-const handAmount = 8;
 let grassStart;
 
 const castleSizeToWin = 100;
@@ -52,28 +28,6 @@ const brickWidth = 225 / 25;
 const brickHeight = 75 / 25;
 
 const castleWidth = 10;
-
-function DrawTitle() {
-  const text = "Castle Wars";
-  const fontSize = "80px";
-  const fontFace = "Times New Roman";
-  const textColor = "#000000ff";
-  const borderWidth = 2;
-
-  ctx.font = `${fontSize} ${fontFace}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const x = getCanvasWidth() * 0.5;
-  const y = getCanvasHeight() * 0.2;
-
-  ctx.strokeStyle = textColor;
-  ctx.lineWidth = borderWidth;
-  // FIXME, 3d effect
-  for (let i = 0; i < 1; i++) {
-    ctx.strokeText(text, x, y);
-  }
-}
 
 // Handle in CSS?
 function drawBorder() {

@@ -1,5 +1,10 @@
 import { PLAYER_NUMBERS } from "./player.js";
 
+const brickWidth = 225 / 25;
+const brickHeight = 75 / 25;
+
+const castleWidth = 10;
+
 export function DrawCastle(ctx, color, bricksHigh, playerNumber) {
   ctx.fillStyle = color;
   ctx.lineWidth = 1;

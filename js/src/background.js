@@ -19,7 +19,7 @@ export class Background {
   }
 
   getGrassStart() {
-    return this.#canvasHeight * 0.7;
+    return this.#canvasHeight * 0.8;
   }
 
   drawSky() {
