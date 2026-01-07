@@ -7,15 +7,14 @@ const GAMESTATE = Object.freeze({
   INSTRUCTIONS: 4,
   CREDITS: 5,
   PAUSE: 6,
+  GAME_OVER_SCREEN: 7,
 });
 
 const ACTUAL_GAMESTATE = Object.freeze({
-  DEALING: 0,
   PLAYER_1_TURN: 1,
   PLAYER_2_TURN: 2,
   PLAYER_1_WIN: 3,
   PLAYER_2_WIN: 4,
-  GAME_PAUSE: 5,
 });
 
 let canvas;
@@ -441,27 +440,47 @@ function playCard(card) {
   });
 
   player.stats[card.cost.resource] -= card.cost.amount;
+
+  if (checkIfPlayerWon()) {
+    return;
+  } else {
+    let cardDup = card;
+    removeCardFromHand(player, card);
+    addCardToGlobalDeck(cardDup);
+    resourceMakersMakeResources(player);
+    switchTurns();
+  }
+}
+
+function checkIfPlayerWon() {
+  let player;
+  let enemy;
+  if (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN) {
+    player = player1;
+    enemy = player2;
+  } else if (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN) {
+    player = player2;
+    enemy = player1;
+  }
   if (
     player.number === 1 &&
     enemy.number === 2 &&
     (enemy.stats["Castle"] <= 0 || player.stats["Castle"] >= castleSizeToWin)
   ) {
     actualGameState = ACTUAL_GAMESTATE.PLAYER_1_WIN;
-    alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
+    //alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
   } else if (
     player.number === 2 &&
     enemy.number === 1 &&
     (enemy.stats["Castle"] <= 0 || player.stats["Castle"] >= castleSizeToWin)
   ) {
     actualGameState = ACTUAL_GAMESTATE.PLAYER_2_WIN;
-    alert("Player 2 wins!!!");
+    //alert("Player 2 wins!!!");
   }
-
-  let cardDup = card;
-  removeCardFromHand(player, card);
-  addCardToGlobalDeck(cardDup);
-  resourceMakersMakeResources(player);
-  switchTurns();
+  return (
+    actualGameState === ACTUAL_GAMESTATE.PLAYER_1_WIN ||
+    actualGameState === ACTUAL_GAMESTATE.PLAYER_2_WIN
+  );
 }
 
 // FIXME so dirty
@@ -526,7 +545,7 @@ function setupHighDPICanvas() {
   canvas.style.height = `${rect.height}px`;
 }
 
-function init() {
+function initCanvas() {
   // const bound = canvas.getBoundingClientRect();
   // canvas.width = bound.width;
   // canvas.height = bound.height;
@@ -543,7 +562,7 @@ function init() {
 
 window.addEventListener("resize", function () {
   cancelAnimationFrame(currAnimation);
-  init();
+  initCanvas();
   requestAnimationFrame(gameLoop);
 });
 
@@ -577,10 +596,10 @@ function drawFence(side, bricksHigh) {
   }
 }
 
-function DrawGame(typeOfGame) {
+function DrawGame() {
   if (
-    typeOfGame === GAMESTATE.SINGLE_PLAYER ||
-    typeOfGame === GAMESTATE.TWO_PLAYER
+    gameState === GAMESTATE.SINGLE_PLAYER ||
+    gameState === GAMESTATE.TWO_PLAYER
   ) {
     drawBackground();
     drawClouds();
@@ -623,6 +642,13 @@ function drawWhoIsPlaying() {
   ctx.fillText(playerText, textX, textY);
 }
 
+function initGame() {
+  actualGameState = ACTUAL_GAMESTATE.PLAYER_1_TURN;
+  gameState = GAMESTATE.MENU;
+  globalDeck = createDefaultDeck();
+  shuffleDeck(globalDeck);
+}
+
 function gameLoop() {
   // const deltaTime = timeStamp - lastTime;
   // lastTime = timeStamp;
@@ -634,17 +660,15 @@ function gameLoop() {
     // single player and two player are same except for cpu choosing turns.
     case GAMESTATE.TWO_PLAYER:
     case GAMESTATE.SINGLE_PLAYER:
-      DrawGame(gameState);
+      DrawGame();
       if (
         actualGameState === ACTUAL_GAMESTATE.PLAYER_1_WIN ||
         actualGameState === ACTUAL_GAMESTATE.PLAYER_2_WIN
       ) {
-        // FIXME, switch to INIT
-        actualGameState = ACTUAL_GAMESTATE.PLAYER_1_TURN;
-        gameState = GAMESTATE.MENU;
-        init();
-        globalDeck = createDefaultDeck();
-        shuffleDeck(globalDeck);
+        alert("game over!");
+        initGame();
+        initCanvas();
+        //gameState = GAMESTATE.GAME_OVER_SCREEN;
       }
       if (
         gameState === GAMESTATE.SINGLE_PLAYER &&
@@ -684,11 +708,9 @@ function cpuPlay() {
 window.onload = () => {
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext("2d");
-  init();
-  globalDeck = createDefaultDeck();
-  shuffleDeck(globalDeck);
+  initGame();
+  initCanvas();
   gameLoop();
-  // }
 };
 
 function shuffleDeck(deck) {
