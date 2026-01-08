@@ -276,6 +276,7 @@ export class Game {
     if (this.#checkIfPlayerWon(player)) {
       // reset deck
       this.#deck = new Deck();
+      this.#gameState = GAME_STATE.PLAYER_1_TURN;
       this.#appState = APP_STATE.MENU;
       return;
     }
