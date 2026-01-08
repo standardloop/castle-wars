@@ -176,21 +176,27 @@ export class Game {
     let card = this.#player2.hand[randomIndexToPlay];
     if (this.#player2.canPlayerPlayCard(card)) {
       this.#playCard(this.#player2, card);
+      this.#removeCardFromPlayerHand(this.#player2, card);
     } else {
       console.log(`CPU discarded ${card.name}!`);
-      let cardDup = card;
       this.#removeCardFromPlayerHand(this.#player2, card);
-      this.#deck.addCardToDeck(cardDup);
-      this.#resourceMakersMakeResources(this.#player2);
-      this.#switchTurns();
     }
+    this.#endOfTurnSteps(this.#player2);
   }
 
-  #switchTurns() {
-    if (this.#gameState === GAME_STATE.PLAYER_1_TURN) {
+  #switchTurns(player) {
+    if (
+      this.#gameState === GAME_STATE.PLAYER_1_TURN &&
+      player.number === PLAYER_NUMBERS.PLAYER_1
+    ) {
       this.#gameState = GAME_STATE.PLAYER_2_TURN;
-    } else if (this.#gameState === GAME_STATE.PLAYER_2_TURN) {
+    } else if (
+      this.#gameState === GAME_STATE.PLAYER_2_TURN &&
+      player.number === PLAYER_NUMBERS.PLAYER_2
+    ) {
       this.#gameState = GAME_STATE.PLAYER_1_TURN;
+    } else {
+      alert("CRASH in switchTurns");
     }
   }
 
@@ -253,17 +259,16 @@ export class Game {
         player.stats[effect.resource] += effect.amount;
       }
     });
-
     player.stats[card.cost.resource] -= card.cost.amount;
-    if (this.#checkIfPlayerWon()) {
-      return;
-    }
   }
 
-  #endOfTurnSteps(player, card) {
-    this.#removeCardFromPlayerHand(player, card);
+  #endOfTurnSteps(player) {
+    if (this.#checkIfPlayerWon(player)) {
+      this.#appState = APP_STATE.MENU;
+      return;
+    }
     this.#resourceMakersMakeResources(player);
-    this.#switchTurns();
+    this.#switchTurns(player);
   }
 
   #removeCardFromPlayerHand(player, card) {
@@ -273,27 +278,30 @@ export class Game {
     this.#deck.addCardToDeck(cardDup);
   }
 
-  #checkIfPlayerWon() {
-    let player;
+  #checkIfPlayerWon(player) {
     let enemy;
-    if (this.#gameState === GAME_STATE.PLAYER_1_TURN) {
-      player = this.#player1;
+    if (
+      this.#gameState === GAME_STATE.PLAYER_1_TURN &&
+      player.number === PLAYER_NUMBERS.PLAYER_1
+    ) {
       enemy = this.#player2;
-    } else if (this.#gameState === GAME_STATE.PLAYER_2_TURN) {
-      player = this.#player2;
+    } else if (
+      this.#gameState === GAME_STATE.PLAYER_2_TURN &&
+      player.number === PLAYER_NUMBERS.PLAYER_2
+    ) {
       enemy = this.#player1;
     }
     if (
-      player.number === 1 &&
-      enemy.number === 2 &&
+      player.number === PLAYER_NUMBERS.PLAYER_1 &&
+      enemy.number === PLAYER_NUMBERS.PLAYER_2 &&
       (enemy.stats["Castle"] <= 0 ||
         player.stats["Castle"] >= CASTLE_SIZE_TO_WIN)
     ) {
       this.#gameState = GAME_STATE.PLAYER_1_WIN;
       alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
     } else if (
-      player.number === 2 &&
-      enemy.number === 1 &&
+      player.number === PLAYER_NUMBERS.PLAYER_2 &&
+      enemy.number === PLAYER_NUMBERS.PLAYER_1 &&
       (enemy.stats["Castle"] <= 0 ||
         player.stats["Castle"] >= CASTLE_SIZE_TO_WIN)
     ) {
@@ -319,24 +327,25 @@ export class Game {
         // discard
         if (shiftKey) {
           console.log(`Player 1 discarded ${card.name}!`);
+          // just remove player card from the players hand
           this.#removeCardFromPlayerHand(player, card);
           wasValidActionPerformed = true;
+          // play card
         } else {
           if (player.canPlayerPlayCard(card)) {
+            // player card and then remove it from the players hand
             this.#playCard(player, card);
+            this.#removeCardFromPlayerHand(player, card);
             wasValidActionPerformed = true;
           } else {
             console.log(
               `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard`,
             );
             wasValidActionPerformed = false;
-            // alert(
-            //   `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard`,
-            // );
           }
         }
         if (wasValidActionPerformed) {
-          this.#endOfTurnSteps();
+          this.#endOfTurnSteps(player);
         }
       }
     });
