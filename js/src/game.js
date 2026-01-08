@@ -122,18 +122,12 @@ export class Game {
       switch (button_pressed) {
         case MENU_BUTTONS.SINGLE_PLAYER:
           this.#player1 = new Player(
-            this.getCanvasWidth(),
-            this.getCanvasHeight(),
-            this.ctx,
             PLAYER_KINDS.HUMAN,
             PLAYER_NUMBERS.PLAYER_1,
             "blue",
           );
           this.#startingHand(this.#player1);
           this.#player2 = new Player(
-            this.getCanvasWidth(),
-            this.getCanvasHeight(),
-            this.ctx,
             PLAYER_KINDS.CPU,
             PLAYER_NUMBERS.PLAYER_2,
             "grey",
@@ -142,6 +136,18 @@ export class Game {
           this.#appState = APP_STATE.SINGLE_PLAYER;
           break;
         case MENU_BUTTONS.TWO_PLAYER:
+          this.#player1 = new Player(
+            PLAYER_KINDS.HUMAN,
+            PLAYER_NUMBERS.PLAYER_1,
+            "blue",
+          );
+          this.#startingHand(this.#player1);
+          this.#player2 = new Player(
+            PLAYER_KINDS.HUMAN,
+            PLAYER_NUMBERS.PLAYER_2,
+            "red",
+          );
+          this.#startingHand(this.#player2);
           this.#appState = APP_STATE.TWO_PLAYER;
           break;
         case MENU_BUTTONS.CARD_DECK:
@@ -373,9 +379,23 @@ export class Game {
   }
 
   #drawBattle() {
-    this.#background.draw();
-    this.#player1.draw(this.#gameState);
-    this.#player2.draw(this.#gameState);
+    this.#background.draw(
+      this.getCanvasWidth(),
+      this.getCanvasHeight(),
+      this.ctx,
+    );
+    this.#player1.draw(
+      this.getCanvasWidth(),
+      this.getCanvasHeight(),
+      this.ctx,
+      this.#gameState,
+    );
+    this.#player2.draw(
+      this.getCanvasWidth(),
+      this.getCanvasHeight(),
+      this.ctx,
+      this.#gameState,
+    );
     if (
       this.#gameState === GAME_STATE.PLAYER_2_TURN &&
       this.#player2.kind === PLAYER_KINDS.CPU
@@ -396,6 +416,7 @@ export class Game {
       case APP_STATE.MENU:
         this.#drawMenu();
         break;
+      case APP_STATE.TWO_PLAYER:
       case APP_STATE.SINGLE_PLAYER:
         this.#drawBattle();
         break;

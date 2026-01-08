@@ -12,20 +12,13 @@ export const PLAYER_NUMBERS = Object.freeze({
 });
 
 export class Player {
-  #canvasWidth;
-  #canvasHeight;
-  #ctx;
   // #hand;
   // #stats
 
-  constructor(canvasWidth, canvasHeight, ctx, kind, number, color) {
+  constructor(kind, number, color) {
     this.kind = kind;
     this.number = number;
     this.color = color;
-
-    this.#canvasWidth = canvasWidth;
-    this.#canvasHeight = canvasHeight;
-    this.#ctx = ctx;
 
     this.hand = this.playerInitialHand();
     this.stats = this.playerInitialStats();
@@ -51,35 +44,29 @@ export class Player {
     };
   }
 
-  #drawPlayerStats() {
+  #drawPlayerStats(canvasWidth, canvasHeight, ctx) {
     DrawCastle(
-      this.#canvasWidth,
-      this.#canvasHeight,
-      this.#ctx,
+      canvasWidth,
+      canvasHeight,
+      ctx,
       this.color,
       this.stats["Castle"],
       this.number,
     );
-    DrawFence(
-      this.#canvasWidth,
-      this.#canvasHeight,
-      this.#ctx,
-      this.stats["Fence"],
-      this.number,
-    );
+    DrawFence(canvasWidth, canvasHeight, ctx, this.stats["Fence"], this.number);
     let positionX;
     if (this.number === PLAYER_NUMBERS.PLAYER_1) {
-      positionX = this.#canvasWidth * 0.1;
+      positionX = canvasWidth * 0.1;
     } else {
-      positionX = this.#canvasWidth * 0.9;
+      positionX = canvasWidth * 0.9;
     }
-    let positionY = this.#canvasHeight;
+    let positionY = canvasHeight;
     for (let playerStatRect = 1; playerStatRect <= 4; playerStatRect++) {
-      positionY = this.#canvasHeight * (playerStatRect / 10);
+      positionY = canvasHeight * (playerStatRect / 10);
       switch (playerStatRect) {
         case 1:
           this.#drawStat(
-            this.#ctx,
+            ctx,
             positionX,
             positionY,
             { name: "Builders", amount: this.stats["Builders"] },
@@ -89,7 +76,7 @@ export class Player {
           break;
         case 2:
           this.#drawStat(
-            this.#ctx,
+            ctx,
             positionX,
             positionY,
             { name: "Soldiers", amount: this.stats["Soldiers"] },
@@ -99,7 +86,7 @@ export class Player {
           break;
         case 3:
           this.#drawStat(
-            this.#ctx,
+            ctx,
             positionX,
             positionY,
             { name: "Magic", amount: this.stats["Magic"] },
@@ -109,7 +96,7 @@ export class Player {
           break;
         case 4:
           this.#drawStat(
-            this.#ctx,
+            ctx,
             positionX,
             positionY,
             { name: "Castle", amount: this.stats["Castle"] },
@@ -137,7 +124,7 @@ export class Player {
     return this.stats[card.cost.resource] >= card.cost.amount;
   }
 
-  #drawCardsFaceUp() {
+  #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
     let cardStart = 0;
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
@@ -149,14 +136,14 @@ export class Player {
   // TODO
   #drawCardsFaceDown() {}
 
-  #drawHand() {
+  #drawHand(canvasWidth, canvasHeight, ctx) {
     // TODO
     // if (this.kind === PLAYER_KINDS.HUMAN) {
     //   this.#drawCardsFaceUp();
     // } else if (this.kind === PLAYER_KINDS.CPU) {
     //   this.#drawCardsFaceDown();
     // }
-    this.#drawCardsFaceUp();
+    this.#drawCardsFaceUp(canvasWidth, canvasHeight, ctx);
 
     // console.log(this.hand);
   }
@@ -165,15 +152,15 @@ export class Player {
     this.hand.push(card);
   }
 
-  draw(gameState) {
-    this.#drawPlayerStats();
+  draw(canvasWidth, canvasHeight, ctx, gameState) {
+    this.#drawPlayerStats(canvasWidth, canvasHeight, ctx);
     if (
       (gameState === GAME_STATE.PLAYER_1_TURN &&
         this.number === PLAYER_NUMBERS.PLAYER_1) ||
       (gameState === GAME_STATE.PLAYER_2_TURN &&
         this.number === PLAYER_NUMBERS.PLAYER_2)
     ) {
-      this.#drawHand();
+      //this.#drawHand();
     }
   }
 }
