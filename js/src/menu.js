@@ -10,37 +10,31 @@ export const MENU_BUTTONS = Object.freeze({
 });
 
 export class Menu {
-  #canvasWidth;
-  #canvasHeight;
-  #ctx;
   #buttons;
 
-  constructor(canvasWidth, canvasHeight, ctx) {
-    this.#canvasWidth = canvasWidth;
-    this.#canvasHeight = canvasHeight;
-    this.#ctx = ctx;
-    this.#buttons = [];
-    this.#initButtons();
+  constructor(canvasWidth, canvasHeight) {
+    this.initButtons(canvasWidth, canvasHeight);
   }
-  #drawTitle() {
+
+  #drawTitle(canvasWidth, canvasHeight, ctx) {
     const text = "Castle Wars";
     const fontSize = "80px";
     const fontFace = "Times New Roman";
     const textColor = "#000000ff";
     const borderWidth = 2;
 
-    this.#ctx.font = `${fontSize} ${fontFace}`;
-    this.#ctx.textAlign = "center";
-    this.#ctx.textBaseline = "middle";
+    ctx.font = `${fontSize} ${fontFace}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-    const x = this.#canvasWidth * 0.5;
-    const y = this.#canvasHeight * 0.2;
+    const x = canvasWidth * 0.5;
+    const y = canvasHeight * 0.2;
 
-    this.#ctx.strokeStyle = textColor;
-    this.#ctx.lineWidth = borderWidth;
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = borderWidth;
     // TODO, 3d effect
     for (let i = 0; i < 1; i++) {
-      this.#ctx.strokeText(text, x, y);
+      ctx.strokeText(text, x, y);
     }
   }
 
@@ -58,7 +52,8 @@ export class Menu {
     return return_text;
   }
 
-  #initButtons() {
+  initButtons(canvasWidth, canvasHeight) {
+    this.clearButtons();
     let menuButtonNames = Object.values(MENU_BUTTONS);
 
     for (
@@ -66,38 +61,36 @@ export class Menu {
       menuButtonIndex < menuButtonNames.length;
       menuButtonIndex++
     ) {
-      let x = this.#canvasWidth * 0.5 - 60;
-      let y = this.#canvasHeight * (0.32 + 0.1 * menuButtonIndex) - 25;
+      let x = canvasWidth * 0.5 - 60;
+      let y = canvasHeight * (0.32 + 0.1 * menuButtonIndex) - 25;
       let menuButtonName = menuButtonNames[menuButtonIndex];
       let width = 120;
       let height = 50;
-      this.#buttons.push(
-        new Button(this.#ctx, menuButtonName, x, y, width, height),
-      );
+      this.#buttons.push(new Button(menuButtonName, x, y, width, height));
     }
   }
 
-  #drawMenuButtons() {
-    this.#buttons.forEach((button) => button.draw());
+  #drawMenuButtons(ctx) {
+    this.#buttons.forEach((button) => button.draw(ctx));
   }
 
-  draw() {
-    this.#drawTitle();
-    this.#drawMenuButtons();
+  draw(canvasWidth, canvasHeight, ctx) {
+    this.#drawTitle(canvasWidth, canvasHeight, ctx);
+    this.#drawMenuButtons(ctx);
     // left
     DrawCastle(
-      this.#canvasWidth,
-      this.#canvasHeight,
-      this.#ctx,
+      canvasWidth,
+      canvasHeight,
+      ctx,
       "blue",
       50,
       PLAYER_NUMBERS.PLAYER_1,
     );
     // right
     DrawCastle(
-      this.#canvasWidth,
-      this.#canvasHeight,
-      this.#ctx,
+      canvasWidth,
+      canvasHeight,
+      ctx,
       "red",
       50,
       PLAYER_NUMBERS.PLAYER_2,
@@ -106,9 +99,7 @@ export class Menu {
 }
 
 class Button {
-  #ctx;
-  constructor(ctx, text, x, y, width, height) {
-    this.#ctx = ctx;
+  constructor(text, x, y, width, height) {
     this.text = text;
     this.x = x;
     this.y = y;
@@ -116,22 +107,18 @@ class Button {
     this.height = height;
   }
 
-  draw() {
-    this.#ctx.textAlign = "center";
-    this.#ctx.textBaseline = "middle";
-    this.#ctx.fillStyle = "rgba(225, 225, 225, 0.5)";
-    this.#ctx.fillRect(this.x, this.y, this.width, this.height);
-    this.#ctx.strokeStyle = "#000000";
-    this.#ctx.strokeRect(this.x, this.y, this.width, this.height);
-    this.#ctx.fillStyle = "#000000";
-    this.#ctx.font = "20px Times New Roman";
-    this.#ctx.textAlign = "center";
-    this.#ctx.textBaseline = "middle";
-    this.#ctx.fillText(
-      this.text,
-      this.x + this.width / 2,
-      this.y + this.height / 2,
-    );
+  draw(ctx) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(225, 225, 225, 0.5)";
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.strokeStyle = "#000000";
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = "#000000";
+    ctx.font = "20px Times New Roman";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
   }
 
   inBounds(mouseX, mouseY) {

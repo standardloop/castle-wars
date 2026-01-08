@@ -10,12 +10,11 @@ window.onload = () => {
   gameLoop();
 };
 
-// recreate the canvas on redraw
+// draw new canvis with updated width and height
 // we don't want to change any player state
 window.addEventListener("resize", () => {
   cancelAnimationFrame(currAnimation);
-  // FIXME, this will reset everything
-  game = new Game("gameCanvas", numOfClouds);
+  game.handleResizeEvent();
   requestAnimationFrame(gameLoop);
 });
 

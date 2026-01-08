@@ -39,12 +39,11 @@ export class Game {
   constructor(elementID, numOfClouds) {
     this.#elementID = elementID;
     this.canvas = document.getElementById(this.#elementID);
-    this.ctx = this.canvas.getContext("2d");
+    this.ctx = null;
     this.initCanvas();
     this.#background = new Background(
       this.getCanvasWidth(),
       this.getCanvasHeight(),
-      this.ctx,
       numOfClouds,
     );
     this.#menu = new Menu(
@@ -81,8 +80,12 @@ export class Game {
     this.ctx.clearRect(0, 0, this.getCanvasWidth(), this.getCanvasHeight());
   }
 
+  setCTX() {
+    this.ctx = this.canvas.getContext("2d");
+  }
   setupHighDPICanvas() {
     // const rect = canvas.getBoundingClientRect();
+    this.setCTX();
     this.setDPR();
     const rect = {
       width: window.innerWidth,
@@ -99,13 +102,22 @@ export class Game {
     this.setupHighDPICanvas();
   }
 
+  handleResizeEvent() {
+    this.clear();
+    this.initCanvas();
+    // TODO, make clouds not have to be recreated on scale event
+    // probably just remove randomness from clouds
+    this.#background.initClouds(this.getCanvasWidth(), this.getCanvasHeight());
+    this.#menu.initButtons(this.getCanvasWidth(), this.getCanvasHeight());
+    this.draw();
+  }
+
   handleClickEvent(event) {
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     if (this.#appState === APP_STATE.MENU) {
       const button_pressed = this.#menu.whichButtonWasPressed(mouseX, mouseY);
-      console.log(button_pressed);
       // FIXME is there a cleaner way to handle this mapping?
       switch (button_pressed) {
         case MENU_BUTTONS.SINGLE_PLAYER:
@@ -352,8 +364,12 @@ export class Game {
   }
 
   #drawMenu() {
-    this.#background.draw();
-    this.#menu.draw();
+    this.#background.draw(
+      this.getCanvasWidth(),
+      this.getCanvasHeight(),
+      this.ctx,
+    );
+    this.#menu.draw(this.getCanvasWidth(), this.getCanvasHeight(), this.ctx);
   }
 
   #drawBattle() {
