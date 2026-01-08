@@ -1,6 +1,14 @@
 import { DrawCastle } from "./castle.js";
 import { PLAYER_NUMBERS } from "./player.js";
 
+export const MENU_BUTTONS = Object.freeze({
+  SINGLE_PLAYER: "Single Player",
+  TWO_PLAYER: "Two Player",
+  CARD_DECK: "Card Deck",
+  INSTRUCTIONS: "Instructions",
+  CREDITS: "Credits",
+});
+
 export class Menu {
   #canvasWidth;
   #canvasHeight;
@@ -40,14 +48,18 @@ export class Menu {
     this.#buttons = [];
   }
 
+  whichButtonWasPressed(mouseX, mouseY) {
+    let return_text = "";
+    this.#buttons.forEach((button) => {
+      if (button.inBounds(mouseX, mouseY)) {
+        return_text = button.text;
+      }
+    });
+    return return_text;
+  }
+
   #initButtons() {
-    let menuButtonNames = [
-      "Single Player",
-      "Two Player",
-      "Card Deck",
-      "Instructions",
-      "Credits",
-    ];
+    let menuButtonNames = Object.values(MENU_BUTTONS);
 
     for (
       let menuButtonIndex = 0;
@@ -74,18 +86,18 @@ export class Menu {
     this.#drawMenuButtons();
     // left
     DrawCastle(
-      this.#ctx,
       this.#canvasWidth,
       this.#canvasHeight,
+      this.#ctx,
       "blue",
       50,
       PLAYER_NUMBERS.PLAYER_1,
     );
     // right
     DrawCastle(
-      this.#ctx,
       this.#canvasWidth,
       this.#canvasHeight,
+      this.#ctx,
       "red",
       50,
       PLAYER_NUMBERS.PLAYER_2,

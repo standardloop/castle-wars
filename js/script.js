@@ -14,6 +14,7 @@ window.onload = () => {
 // we don't want to change any player state
 window.addEventListener("resize", () => {
   cancelAnimationFrame(currAnimation);
+  // FIXME, this will reset everything
   game = new Game("gameCanvas", numOfClouds);
   requestAnimationFrame(gameLoop);
 });
@@ -23,3 +24,7 @@ function gameLoop() {
   game.draw();
   currAnimation = requestAnimationFrame(gameLoop);
 }
+
+addEventListener("click", (event) => {
+  game.handleClickEvent(event);
+});

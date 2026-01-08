@@ -7,9 +7,9 @@ const brickHeight = 75 / 25;
 const castleWidth = 10;
 
 export function DrawCastle(
-  ctx,
   canvasWidth,
   canvasHeight,
+  ctx,
   color,
   bricksHigh,
   playerNumber,
@@ -42,7 +42,13 @@ export function DrawCastle(
 }
 
 // FIXME
-export function DrawFence(ctx, bricksHigh, playerNumber) {
+export function DrawFence(
+  canvasWidth,
+  canvasHeight,
+  ctx,
+  bricksHigh,
+  playerNumber,
+) {
   const fenceWidth = 2;
   ctx.fillStyle = "red";
   ctx.lineWidth = 1;
@@ -50,9 +56,9 @@ export function DrawFence(ctx, bricksHigh, playerNumber) {
   let flipper = 1;
   let sidePositionX;
   if (playerNumber === PLAYER_NUMBERS.PLAYER_1) {
-    sidePositionX = getCanvasWidth() * 0.4;
+    sidePositionX = canvasWidth * 0.4;
   } else {
-    sidePositionX = getCanvasWidth() * 0.6;
+    sidePositionX = canvasHeight * 0.6;
     flipper = -1;
   }
 
