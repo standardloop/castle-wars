@@ -1,4 +1,5 @@
 import { DrawCastle, DrawFence } from "./castle.js";
+import { GAME_STATE } from "./game.js";
 
 export const PLAYER_KINDS = Object.freeze({
   HUMAN: 0,
@@ -14,6 +15,8 @@ export class Player {
   #canvasWidth;
   #canvasHeight;
   #ctx;
+  // #hand;
+  // #stats
 
   constructor(canvasWidth, canvasHeight, ctx, kind, number, color) {
     this.kind = kind;
@@ -130,28 +133,47 @@ export class Player {
     ctx.fillText(stat2.name + " " + stat2.amount, x, y + 20);
   }
 
-  draw() {
-    this.#drawPlayerStats();
-    // if (
-    //   (actualGameState === ACTUAL_GAMESTATE.PLAYER_1_TURN &&
-    //     this.number === 1) ||
-    //   (actualGameState === ACTUAL_GAMESTATE.PLAYER_2_TURN && this.number === 2)
-    // ) {
-    //   if (this.kind === PLAYER_KINDS.HUMAN) {
-    //   } else if (this.kind === PLAYER_KINDS.CPU) {
-    //     // drawCardsFaceDown
-    //   }
-    //   // drawCardsFaceUp
-    //   // console.log(this.hand);
-    //   let cardStart = 0;
-    //   for (let card = 0; card < this.hand.length; card++) {
-    //     let cardCanBePlayedBool = canPlayerPlayCard(
-    //       this.stats,
-    //       this.hand[card],
-    //     );
-    //     this.hand[card].draw(cardStart, cardCanBePlayedBool);
-    //     cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
-    //   }
+  #canPlayerPlayCard(card) {
+    return this.stats[card.cost.resource] < card.cost.amount;
+  }
+
+  #drawCardsFaceUp() {
+    let cardStart = 0;
+    for (let card = 0; card < this.hand.length; card++) {
+      let cardCanBePlayedBool = this.#canPlayerPlayCard(this.hand[card]);
+      this.hand[card].draw(cardStart, cardCanBePlayedBool);
+      cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
+    }
+  }
+
+  // TODO
+  #drawCardsFaceDown() {}
+
+  #drawHand() {
+    // TODO
+    // if (this.kind === PLAYER_KINDS.HUMAN) {
+    //   this.#drawCardsFaceUp();
+    // } else if (this.kind === PLAYER_KINDS.CPU) {
+    //   this.#drawCardsFaceDown();
     // }
+    this.#drawCardsFaceUp();
+
+    // console.log(this.hand);
+  }
+
+  addCardToHand(card) {
+    this.hand.push(card);
+  }
+
+  draw(gameState) {
+    this.#drawPlayerStats();
+    if (
+      (gameState === GAME_STATE.PLAYER_1_TURN &&
+        this.number === PLAYER_NUMBERS.PLAYER_1) ||
+      (gameState === GAME_STATE.PLAYER_2_TURN &&
+        this.number === PLAYER_NUMBERS.PLAYER_2)
+    ) {
+      this.#drawHand();
+    }
   }
 }

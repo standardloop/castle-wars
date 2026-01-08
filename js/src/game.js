@@ -3,6 +3,9 @@ import { Menu } from "./menu.js";
 import { MENU_BUTTONS } from "./menu.js";
 import { Player, PLAYER_NUMBERS } from "./player.js";
 import { PLAYER_KINDS } from "./player.js";
+import { Deck } from "./deck.js";
+
+import { CARDS_IN_HAND } from "./constants.js";
 
 export const APP_STATE = Object.freeze({
   MENU: 0,
@@ -31,7 +34,11 @@ export class Game {
   #player1;
   #player2;
 
+  #deck;
+
   #appState;
+  #gameState;
+
   constructor(elementID, numOfClouds) {
     this.#elementID = elementID;
     this.canvas = document.getElementById(this.#elementID);
@@ -48,7 +55,14 @@ export class Game {
       this.getCanvasHeight(),
       this.ctx,
     );
+    this.#deck = new Deck(
+      this.getCanvasWidth(),
+      this.getCanvasHeight(),
+      this.ctx,
+    );
+
     this.#appState = APP_STATE.MENU;
+    this.#gameState = GAME_STATE.PLAYER_1_TURN;
     this.#player1 = null;
     this.#player2 = null;
   }
@@ -106,7 +120,7 @@ export class Game {
             PLAYER_NUMBERS.PLAYER_1,
             "blue",
           );
-          // startingHand(player1);
+          this.#startingHand(this.#player1);
           this.#player2 = new Player(
             this.getCanvasWidth(),
             this.getCanvasHeight(),
@@ -115,7 +129,7 @@ export class Game {
             PLAYER_NUMBERS.PLAYER_2,
             "grey",
           );
-          // startingHand(player2);
+          this.#startingHand(this.#player2);
           this.#appState = APP_STATE.SINGLE_PLAYER;
           break;
         case MENU_BUTTONS.TWO_PLAYER:
@@ -143,8 +157,19 @@ export class Game {
 
   #drawBattle() {
     this.#background.draw();
-    this.#player1.draw();
-    this.#player2.draw();
+    this.#player1.draw(this.#gameState);
+    this.#player2.draw(this.#gameState);
+  }
+
+  #startingHand(player) {
+    for (let i = 0; i < CARDS_IN_HAND; i++) {
+      this.#giveCardToPlayer(player);
+    }
+  }
+
+  #giveCardToPlayer(player) {
+    let card = this.#deck.getCardFromDeck();
+    player.addCardToHand(card);
   }
 
   draw() {
