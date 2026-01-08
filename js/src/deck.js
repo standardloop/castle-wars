@@ -29,6 +29,12 @@ export class Deck {
   getCardFromDeck() {
     return this.#cards.shift();
   }
+  addCardToDeck(card) {
+    card.x = null;
+    card.y = null;
+    this.#cards.push(card);
+    this.shuffleDeck();
+  }
 }
 
 function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {

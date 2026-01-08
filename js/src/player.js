@@ -133,14 +133,14 @@ export class Player {
     ctx.fillText(stat2.name + " " + stat2.amount, x, y + 20);
   }
 
-  #canPlayerPlayCard(card) {
+  canPlayerPlayCard(card) {
     return this.stats[card.cost.resource] < card.cost.amount;
   }
 
   #drawCardsFaceUp() {
     let cardStart = 0;
     for (let card = 0; card < this.hand.length; card++) {
-      let cardCanBePlayedBool = this.#canPlayerPlayCard(this.hand[card]);
+      let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
       this.hand[card].draw(cardStart, cardCanBePlayedBool);
       cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
     }
