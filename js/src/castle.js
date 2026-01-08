@@ -41,7 +41,6 @@ export function DrawCastle(
   }
 }
 
-// FIXME
 export function DrawFence(
   canvasWidth,
   canvasHeight,

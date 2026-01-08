@@ -677,6 +677,7 @@ export class Card {
     this.x = x;
     this.y = y;
   }
+
   inBounds(mouseX, mouseY) {
     return (
       mouseX > this.x &&

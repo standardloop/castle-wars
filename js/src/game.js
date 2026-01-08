@@ -155,13 +155,34 @@ export class Game {
           mouseY,
           event.shiftKey,
         );
+      } else if (
+        this.#gameState === GAME_STATE.PLAYER_2_TURN &&
+        this.#player2.kind === PLAYER_KINDS.HUMAN
+      ) {
+        this.#checkAndPlayClickedCard(
+          this.#player2,
+          mouseX,
+          mouseY,
+          event.shiftKey,
+        );
+        // CPU doesn't play on click
       }
-      // } else if (
-      //   this.#gameState === GAME_STATE.PLAYER_2_TURN &&
-      //   this.#player2.kind === PLAYER_KINDS.HUMAN
-      // ) {
-      //   this.#player2.checkClickedCard();
-      // }
+    }
+  }
+  // trivial cpu
+  // selects a card at random, if can play, play, if can't then discard
+  #cpuPlay() {
+    let randomIndexToPlay = Math.floor(Math.random() * 8);
+    let card = this.#player2.hand[randomIndexToPlay];
+    if (this.#player2.canPlayerPlayCard(card)) {
+      this.#playCard(this.#player2, card);
+    } else {
+      console.log(`CPU discarded ${card.name}!`);
+      let cardDup = card;
+      this.#removeCardFromPlayerHand(this.#player2, card);
+      this.#deck.addCardToDeck(cardDup);
+      this.#resourceMakersMakeResources(this.#player2);
+      this.#switchTurns();
     }
   }
 
@@ -184,12 +205,6 @@ export class Game {
     return card.x / (card.rectWidth + cardPadding);
   }
 
-  #removeCardFromHand(hand, card) {
-    let index = this.#cardXPosToIndex(card);
-    this.#deck.shuffleDeck();
-    hand[index] = this.#deck.getCardFromDeck();
-  }
-
   #playCard(player, card) {
     let enemy;
     if (player.number === PLAYER_NUMBERS.PLAYER_1) {
@@ -197,7 +212,12 @@ export class Game {
     } else if (player.number === PLAYER_NUMBERS.PLAYER_2) {
       enemy = this.#player1;
     }
-    console.log(`Player ${player.number} played card ${card.name}`);
+    if (player.kind === PLAYER_KINDS.HUMAN) {
+      console.log(`Player ${player.number} played card ${card.name}`);
+    } else {
+      console.log(`CPU played card ${card.name}`);
+    }
+
     card.effect.self.forEach((effect) => {
       player.stats[effect.resource] += effect.amount;
       // cover case with Reserve card, in future, make this a gamesetting.
@@ -222,7 +242,6 @@ export class Game {
         }
       }
     });
-
     // Thief and Curse cards
     card.effect.transfer.forEach((effect) => {
       let amountSupposedToDeduct = effect.amount;
@@ -236,17 +255,24 @@ export class Game {
     });
 
     player.stats[card.cost.resource] -= card.cost.amount;
-
     if (this.#checkIfPlayerWon()) {
       return;
-    } else {
-      let cardDup = card;
-      this.#removeCardFromHand(player, card);
-      this.#deck.addCardToDeck(cardDup);
-      this.#resourceMakersMakeResources(player);
-      this.#switchTurns();
     }
   }
+
+  #endOfTurnSteps(player, card) {
+    this.#removeCardFromPlayerHand(player, card);
+    this.#resourceMakersMakeResources(player);
+    this.#switchTurns();
+  }
+
+  #removeCardFromPlayerHand(player, card) {
+    let cardDup = card;
+    let index = this.#cardXPosToIndex(card);
+    player.hand[index] = this.#deck.getCardFromDeck();
+    this.#deck.addCardToDeck(cardDup);
+  }
+
   #checkIfPlayerWon() {
     let player;
     let enemy;
@@ -288,28 +314,29 @@ export class Game {
 
   #checkAndPlayClickedCard(player, mouseX, mouseY, shiftKey) {
     player.hand.forEach((card) => {
+      let wasValidActionPerformed = false;
       if (card.inBounds(mouseX, mouseY)) {
-        console.log(`${card.name}`);
         // discard
         if (shiftKey) {
           console.log(`Player 1 discarded ${card.name}!`);
-
-          let cardDup = card;
-          this.#removeCardFromHand(player.hand, card);
-          this.#deck.addCardToDeck(cardDup);
-          this.#resourceMakersMakeResources(player);
-          this.#switchTurns();
+          this.#removeCardFromPlayerHand(player, card);
+          wasValidActionPerformed = true;
         } else {
           if (player.canPlayerPlayCard(card)) {
             this.#playCard(player, card);
+            wasValidActionPerformed = true;
           } else {
             console.log(
               `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard`,
             );
+            wasValidActionPerformed = false;
             // alert(
             //   `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard`,
             // );
           }
+        }
+        if (wasValidActionPerformed) {
+          this.#endOfTurnSteps();
         }
       }
     });
@@ -324,6 +351,12 @@ export class Game {
     this.#background.draw();
     this.#player1.draw(this.#gameState);
     this.#player2.draw(this.#gameState);
+    if (
+      this.#gameState === GAME_STATE.PLAYER_2_TURN &&
+      this.#player2.kind === PLAYER_KINDS.CPU
+    ) {
+      this.#cpuPlay();
+    }
   }
 
   #startingHand(player) {
