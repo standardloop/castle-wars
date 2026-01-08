@@ -47,7 +47,7 @@ export class Game {
       numOfClouds,
     );
     this.#menu = new Menu(this.getCanvasWidth(), this.getCanvasHeight());
-    this.#deck = new Deck();
+    this.#deck = new Deck(this.getCanvasWidth(), this.getCanvasHeight());
 
     this.#appState = APP_STATE.MENU;
     this.#gameState = GAME_STATE.PLAYER_1_TURN;
