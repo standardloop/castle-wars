@@ -274,6 +274,8 @@ export class Game {
 
   #endOfTurnSteps(player) {
     if (this.#checkIfPlayerWon(player)) {
+      // reset deck
+      this.#deck = new Deck();
       this.#appState = APP_STATE.MENU;
       return;
     }
