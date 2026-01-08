@@ -92,6 +92,8 @@ export class Game {
 
   initCanvas() {
     this.setupHighDPICanvas();
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
   }
 
   handleResizeEvent() {

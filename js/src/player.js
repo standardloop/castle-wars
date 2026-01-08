@@ -125,7 +125,7 @@ export class Player {
   }
 
   #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
-    let cardStart = 0;
+    let cardStart = canvasWidth * 0.1;
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
       this.hand[card].draw(
@@ -135,7 +135,7 @@ export class Player {
         cardStart,
         cardCanBePlayedBool,
       );
-      cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
+      cardStart += this.hand[card].rectWidth + 1; // FIXME card padding;
     }
   }
 
