@@ -58,11 +58,11 @@ export function DrawFence(
   if (playerNumber === PLAYER_NUMBERS.PLAYER_1) {
     sidePositionX = canvasWidth * 0.4;
   } else {
-    sidePositionX = canvasHeight * 0.6;
+    sidePositionX = canvasWidth * 0.6;
     flipper = -1;
   }
 
-  let fenceStartY = GetGrassStart(1);
+  let fenceStartY = GetGrassStart(canvasHeight);
 
   for (let layersY = 1; layersY < bricksHigh; layersY++) {
     for (let layersX = 1; layersX <= fenceWidth; layersX++) {

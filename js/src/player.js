@@ -54,18 +54,18 @@ export class Player {
   #drawPlayerStats() {
     DrawCastle(
       this.#canvasWidth,
-      this.#canvasWidth,
+      this.#canvasHeight,
       this.#ctx,
       this.color,
-      this.number,
       this.stats["Castle"],
+      this.number,
     );
     DrawFence(
       this.#canvasWidth,
-      this.#canvasWidth,
+      this.#canvasHeight,
       this.#ctx,
-      this.number,
       this.stats["Fence"],
+      this.number,
     );
     let positionX;
     if (this.number === PLAYER_NUMBERS.PLAYER_1) {
@@ -134,7 +134,7 @@ export class Player {
   }
 
   canPlayerPlayCard(card) {
-    return this.stats[card.cost.resource] < card.cost.amount;
+    return this.stats[card.cost.resource] >= card.cost.amount;
   }
 
   #drawCardsFaceUp() {

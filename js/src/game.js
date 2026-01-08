@@ -1,11 +1,8 @@
 import { Background } from "./background.js";
-import { Menu } from "./menu.js";
-import { MENU_BUTTONS } from "./menu.js";
-import { Player, PLAYER_NUMBERS } from "./player.js";
-import { PLAYER_KINDS } from "./player.js";
+import { Menu, MENU_BUTTONS } from "./menu.js";
+import { Player, PLAYER_NUMBERS, PLAYER_KINDS } from "./player.js";
 import { Deck } from "./deck.js";
-
-import { CARDS_IN_HAND } from "./constants.js";
+import { CARDS_IN_HAND, CASTLE_SIZE_TO_WIN } from "./constants.js";
 
 export const APP_STATE = Object.freeze({
   MENU: 0,
@@ -152,7 +149,7 @@ export class Game {
       this.#appState === APP_STATE.TWO_PLAYER
     ) {
       if (this.#gameState === GAME_STATE.PLAYER_1_TURN) {
-        this.#checkAndPlayerClickedCard(
+        this.#checkAndPlayClickedCard(
           this.#player1,
           mouseX,
           mouseY,
@@ -193,14 +190,11 @@ export class Game {
     hand[index] = this.#deck.getCardFromDeck();
   }
 
-  #playCard(card) {
-    let player;
+  #playCard(player, card) {
     let enemy;
-    if (this.#gameState === GAME_STATE.PLAYER_1_TURN) {
-      player = this.#player1;
+    if (player.number === PLAYER_NUMBERS.PLAYER_1) {
       enemy = this.#player2;
-    } else if (this.#gameState === GAME_STATE.PLAYER_2_TURN) {
-      player = this.#player2;
+    } else if (player.number === PLAYER_NUMBERS.PLAYER_2) {
       enemy = this.#player1;
     }
     console.log(`Player ${player.number} played card ${card.name}`);
@@ -257,23 +251,25 @@ export class Game {
     let player;
     let enemy;
     if (this.#gameState === GAME_STATE.PLAYER_1_TURN) {
-      player = player1;
-      enemy = player2;
+      player = this.#player1;
+      enemy = this.#player2;
     } else if (this.#gameState === GAME_STATE.PLAYER_2_TURN) {
-      player = player2;
-      enemy = player1;
+      player = this.#player2;
+      enemy = this.#player1;
     }
     if (
       player.number === 1 &&
       enemy.number === 2 &&
-      (enemy.stats["Castle"] <= 0 || player.stats["Castle"] >= castleSizeToWin)
+      (enemy.stats["Castle"] <= 0 ||
+        player.stats["Castle"] >= CASTLE_SIZE_TO_WIN)
     ) {
       this.#gameState = GAME_STATE.PLAYER_1_WIN;
       alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
     } else if (
       player.number === 2 &&
       enemy.number === 1 &&
-      (enemy.stats["Castle"] <= 0 || player.stats["Castle"] >= castleSizeToWin)
+      (enemy.stats["Castle"] <= 0 ||
+        player.stats["Castle"] >= CASTLE_SIZE_TO_WIN)
     ) {
       this.#gameState = GAME_STATE.PLAYER_2_WIN;
       alert("Player 2 wins!!!");
@@ -290,7 +286,7 @@ export class Game {
     player.stats["Crystals"] += player.stats["Magic"];
   }
 
-  #checkAndPlayerClickedCard(player, mouseX, mouseY, shiftKey) {
+  #checkAndPlayClickedCard(player, mouseX, mouseY, shiftKey) {
     player.hand.forEach((card) => {
       if (card.inBounds(mouseX, mouseY)) {
         console.log(`${card.name}`);
@@ -305,7 +301,7 @@ export class Game {
           this.#switchTurns();
         } else {
           if (player.canPlayerPlayCard(card)) {
-            this.#playCard(card);
+            this.#playCard(player, card);
           } else {
             console.log(
               `Clicked ${card.name}, but card cannot be played, hold "Shift" and then click to discard`,
