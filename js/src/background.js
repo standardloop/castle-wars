@@ -47,11 +47,12 @@ export class Clouds {
     for (let i = 0; i < this.#numOfClouds; i++) {
       const x = Math.random() * canvasWidth;
       const y = Math.random() * canvasHeight * 0.5; // upper half
-      const speed = getRandomArbitrary(0.1, 0.3);
+      const speed = getRandomArbitrary(0.05, 0.1);
       const size = Math.random() * 30 + 15;
       this.clouds.push(new Cloud(x, y, speed, size));
     }
   }
+
   clear() {
     this.clouds = [];
   }
