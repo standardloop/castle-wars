@@ -8,14 +8,16 @@ const CARD_TYPES = Object.freeze({
 
 export class Deck {
   #cards;
-  constructor(canvasWidth, canvasHeight, ctx) {
+  constructor() {
     this.#cards = [];
-    this.createDefaultDeck(canvasWidth, canvasHeight, ctx);
+    this.createDefaultDeck();
   }
-  createDefaultDeck(canvasWidth, canvasHeight, ctx) {
-    addDefaultBricksCards(canvasWidth, canvasHeight, ctx, this.#cards);
-    addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, this.#cards);
-    addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, this.#cards);
+  createDefaultDeck() {
+    addDefaultBricksCards(this.#cards);
+    this.shuffleDeck();
+    addDefaultWeaponsCards(this.#cards);
+    this.shuffleDeck();
+    addDefaultCrystalsCards(this.#cards);
     this.shuffleDeck();
   }
   shuffleDeck() {
@@ -37,16 +39,14 @@ export class Deck {
   }
 }
 
-function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
+// TODO, store as JSON?
+function addDefaultBricksCards(deck) {
   const cardType = CARD_TYPES.BRICKS;
   const resourceName = "Bricks";
   const wallCards = 3;
   for (let i = 0; i < wallCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Wall",
         { resource: resourceName, amount: 1 },
         {
@@ -62,9 +62,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < baseCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Base",
         { resource: resourceName, amount: 1 },
         {
@@ -80,9 +77,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < defenceCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Defence",
         { resource: resourceName, amount: 3 },
         {
@@ -98,9 +92,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < reserveCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Reserve",
         { resource: resourceName, amount: 3 },
         {
@@ -119,9 +110,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < towerCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Tower",
         { resource: resourceName, amount: 6 },
         {
@@ -137,9 +125,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < schoolCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "School",
         { resource: resourceName, amount: 8 },
         {
@@ -155,9 +140,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < wainCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Wain",
         { resource: resourceName, amount: 10 },
         {
@@ -173,9 +155,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < fenceCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Fence",
         { resource: resourceName, amount: 12 },
         {
@@ -191,9 +170,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < fortCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Fort",
         { resource: resourceName, amount: 18 },
         {
@@ -209,9 +185,6 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < babylonCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Babylon",
         { resource: resourceName, amount: 39 },
         {
@@ -225,16 +198,13 @@ function addDefaultBricksCards(canvasWidth, canvasHeight, ctx, deck) {
   }
 }
 
-function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
+function addDefaultWeaponsCards(deck) {
   const cardType = CARD_TYPES.WEAPONS;
   const resourceName = "Weapons";
   const archerCards = 3;
   for (let i = 0; i < archerCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Archer",
         { resource: resourceName, amount: 1 },
         {
@@ -250,9 +220,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < knightCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Knight",
         { resource: resourceName, amount: 1 },
         {
@@ -268,9 +235,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < riderCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Rider",
         { resource: resourceName, amount: 2 },
         {
@@ -286,9 +250,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < platoonCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Platoon",
         { resource: resourceName, amount: 4 },
         {
@@ -304,9 +265,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < recruitCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Recruit",
         { resource: resourceName, amount: 8 },
         {
@@ -322,9 +280,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < attackCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Attack",
         { resource: resourceName, amount: 10 },
         {
@@ -340,9 +295,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < saboteurCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Saboteur",
         { resource: resourceName, amount: 12 },
         {
@@ -362,9 +314,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < thiefCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Thief",
         { resource: resourceName, amount: 15 },
         {
@@ -384,9 +333,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < swatCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Swat",
         { resource: resourceName, amount: 18 },
         {
@@ -402,9 +348,6 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < bansheeCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Banshee",
         { resource: resourceName, amount: 28 },
         {
@@ -418,16 +361,13 @@ function addDefaultWeaponsCards(canvasWidth, canvasHeight, ctx, deck) {
   }
 }
 
-function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
+function addDefaultCrystalsCards(deck) {
   const cardType = CARD_TYPES.CRYSTALS;
   const resourceName = "Crystals";
   const conjureBricksCards = 3;
   for (let i = 0; i < conjureBricksCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Conjure bricks",
         { resource: resourceName, amount: 4 },
         {
@@ -443,9 +383,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < conjureCrystalsCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Conjure crystals",
         { resource: resourceName, amount: 4 },
         {
@@ -461,9 +398,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < conjureWeaponsCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Conjure weapons",
         { resource: resourceName, amount: 4 },
         {
@@ -479,9 +413,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < crushBricksCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Crush bricks",
         { resource: resourceName, amount: 4 },
         {
@@ -497,9 +428,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < crushCrystalsCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Crush crystals",
         { resource: resourceName, amount: 4 },
         {
@@ -515,9 +443,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < crushWeaponsCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Crush weapons",
         { resource: resourceName, amount: 4 },
         {
@@ -533,9 +458,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < sorcererCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Sorcerer",
         { resource: resourceName, amount: 8 },
         {
@@ -551,9 +473,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < dragonCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Dragon",
         { resource: resourceName, amount: 21 },
         {
@@ -569,9 +488,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < pixiesCards; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Pixies",
         { resource: resourceName, amount: 22 },
         {
@@ -587,9 +503,6 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
   for (let i = 0; i < curseCard; i++) {
     deck.push(
       new Card(
-        canvasWidth,
-        canvasHeight,
-        ctx,
         "Curse",
         { resource: resourceName, amount: 45 },
         {
@@ -613,15 +526,7 @@ function addDefaultCrystalsCards(canvasWidth, canvasHeight, ctx, deck) {
 }
 
 export class Card {
-  #canvasWidth;
-  #canvasHeight;
-  #ctx;
-
-  constructor(canvasWidth, canvasHeight, ctx, name, cost, effect, kind) {
-    this.#canvasWidth = canvasWidth;
-    this.#canvasHeight = canvasHeight;
-    this.#ctx = ctx;
-
+  constructor(name, cost, effect, kind) {
     this.name = name;
     this.cost = cost;
     this.effect = effect;
@@ -637,7 +542,7 @@ export class Card {
   }
 
   // canPlay is bool
-  draw(x, canPlay) {
+  draw(canvasWidth, canvasHeight, ctx, x, canPlay) {
     let color;
     switch (this.kind) {
       case CARD_TYPES.BRICKS:
@@ -657,22 +562,22 @@ export class Card {
       color = "grey";
     }
 
-    const y = GetGrassStart(this.#canvasHeight);
-    this.#ctx.fillStyle = color;
-    this.#ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
+    const y = GetGrassStart(canvasHeight);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
 
-    this.#ctx.fillStyle = "#000000ff";
-    this.#ctx.font = "10px Times New Roman";
+    ctx.fillStyle = "#000000ff";
+    ctx.font = "10px Times New Roman";
     let textY = y + this.rectHeight / 2;
     let textX = x + this.rectWidth / 2;
     const spaceChar = " ";
     if (this.name.includes(spaceChar)) {
       let allWordsInName = this.name.split(spaceChar);
       for (let i = 0; i < allWordsInName.length; i++) {
-        this.#ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+        ctx.fillText(allWordsInName[i], textX, textY + i * 10);
       }
     } else {
-      this.#ctx.fillText(this.name, textX, textY);
+      ctx.fillText(this.name, textX, textY);
     }
     this.x = x;
     this.y = y;

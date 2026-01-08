@@ -128,7 +128,13 @@ export class Player {
     let cardStart = 0;
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
-      this.hand[card].draw(cardStart, cardCanBePlayedBool);
+      this.hand[card].draw(
+        canvasWidth,
+        canvasHeight,
+        ctx,
+        cardStart,
+        cardCanBePlayedBool,
+      );
       cardStart += this.hand[card].rectWidth + 5; // FIXME card padding;
     }
   }
@@ -160,7 +166,7 @@ export class Player {
       (gameState === GAME_STATE.PLAYER_2_TURN &&
         this.number === PLAYER_NUMBERS.PLAYER_2)
     ) {
-      //this.#drawHand();
+      this.#drawHand(canvasWidth, canvasHeight, ctx);
     }
   }
 }
