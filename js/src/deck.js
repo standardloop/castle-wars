@@ -47,6 +47,8 @@ export class Card {
     this.kind = kind;
 
     // FIXME, size is hardcoded
+    // this.rectWidth = (canvasWidth * 0.8) / 8;
+    // this.rectHeight = GetGrassStart(canvasHeight) * 0.2;
     this.rectWidth = 5 * 10;
     this.rectHeight = 7 * 10;
 
@@ -81,7 +83,7 @@ export class Card {
     ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
 
     ctx.fillStyle = "#000000ff";
-    ctx.font = "10px Times New Roman";
+    ctx.font = "20px Times New Roman";
     let textY = y + this.rectHeight / 2;
     let textX = x + this.rectWidth / 2;
     const spaceChar = " ";
