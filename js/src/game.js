@@ -219,7 +219,7 @@ export class Game {
     } else if (card.x === 0) {
       return 0;
     }
-    const cardPadding = 5;
+    const cardPadding = 1;
     return card.x / (card.rectWidth + cardPadding);
   }
 
@@ -289,6 +289,7 @@ export class Game {
   #removeCardFromPlayerHand(player, card) {
     let cardDup = card;
     let index = this.#cardXPosToIndex(card);
+    console.log(index);
     player.hand[index] = this.#deck.getCardFromDeck();
     this.#deck.addCardToDeck(cardDup);
   }

@@ -83,7 +83,7 @@ export class Card {
     ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
 
     ctx.fillStyle = "#000000ff";
-    ctx.font = "20px Times New Roman";
+    ctx.font = "10px Times New Roman";
     let textY = y + this.rectHeight / 2;
     let textX = x + this.rectWidth / 2;
     const spaceChar = " ";

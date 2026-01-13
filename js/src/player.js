@@ -125,7 +125,7 @@ export class Player {
   }
 
   #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
-    let cardStart = canvasWidth * 0.1;
+    let cardStart = 0;
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
       this.hand[card].draw(
