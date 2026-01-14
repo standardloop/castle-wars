@@ -35,6 +35,7 @@ export class Deck {
     card.y = null;
     card.rectWidth = null;
     card.rectHeight = null;
+    card.index = null;
 
     this.#cards.push(card);
     this.shuffleDeck();
@@ -54,10 +55,21 @@ export class Card {
     this.rectHeight = null;
     this.x = null;
     this.y = null;
+    this.index = null;
   }
 
   // canPlay is bool
-  draw(canvasWidth, canvasHeight, ctx, cardWidth, cardHeight, x, y, canPlay) {
+  draw(
+    canvasWidth,
+    canvasHeight,
+    ctx,
+    cardWidth,
+    cardHeight,
+    x,
+    y,
+    canPlay,
+    isFaceDown,
+  ) {
     this.x = x;
     this.y = y;
     this.rectWidth = cardWidth;
@@ -77,25 +89,27 @@ export class Card {
         color = "grey";
         break;
     }
-    if (!canPlay) {
+    if (!canPlay || isFaceDown) {
       color = "grey";
     }
 
     ctx.fillStyle = color;
     ctx.fillRect(x, y, cardWidth, cardHeight);
 
-    ctx.fillStyle = "#000000ff";
-    ctx.font = "10px Times New Roman";
-    let textX = x + cardWidth / 2;
-    let textY = y + cardHeight / 2;
-    const spaceChar = " ";
-    if (this.name.includes(spaceChar)) {
-      let allWordsInName = this.name.split(spaceChar);
-      for (let i = 0; i < allWordsInName.length; i++) {
-        ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+    if (!isFaceDown) {
+      ctx.fillStyle = "#000000ff";
+      ctx.font = "10px Times New Roman";
+      let textX = x + cardWidth / 2;
+      let textY = y + cardHeight / 2;
+      const spaceChar = " ";
+      if (this.name.includes(spaceChar)) {
+        let allWordsInName = this.name.split(spaceChar);
+        for (let i = 0; i < allWordsInName.length; i++) {
+          ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+        }
+      } else {
+        ctx.fillText(this.name, textX, textY);
       }
-    } else {
-      ctx.fillText(this.name, textX, textY);
     }
   }
 

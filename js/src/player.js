@@ -1,5 +1,5 @@
 import { DrawCastle, DrawFence } from "./castle.js";
-import { GetGrassStart, CARD_PADDING } from "./constants.js";
+import { GetGrassStart, CARD_PADDING, CARDS_IN_HAND } from "./constants.js";
 import { GAME_STATE } from "./game.js";
 
 export const PLAYER_KINDS = Object.freeze({
@@ -126,15 +126,15 @@ export class Player {
   }
 
   // for now, we are drawing cards based on canvas size
-  #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
+  #drawCardsInHand(canvasWidth, canvasHeight, ctx, isFaceDown) {
     const cardRectHeight = (canvasHeight - GetGrassStart(canvasHeight)) * 0.8;
     const cardStartY =
       GetGrassStart(canvasHeight) +
       (canvasHeight - GetGrassStart(canvasHeight)) * 0.1;
 
-    let cardStartX = canvasWidth * 0.1;
+    let cardStartX = canvasWidth * 0.1 - CARD_PADDING * CARDS_IN_HAND;
     const cardEnd = canvasWidth * 0.9;
-    const cardRectWidth = (cardEnd - cardStartX) / 8;
+    const cardRectWidth = (cardEnd - cardStartX) / CARDS_IN_HAND;
 
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
@@ -147,24 +147,10 @@ export class Player {
         cardStartX,
         cardStartY,
         cardCanBePlayedBool,
+        isFaceDown,
       );
       cardStartX += cardRectWidth + CARD_PADDING;
     }
-  }
-
-  // TODO
-  #drawCardsFaceDown() {}
-
-  #drawHand(canvasWidth, canvasHeight, ctx) {
-    // TODO
-    // if (this.kind === PLAYER_KINDS.HUMAN) {
-    //   this.#drawCardsFaceUp();
-    // } else if (this.kind === PLAYER_KINDS.CPU) {
-    //   this.#drawCardsFaceDown();
-    // }
-    this.#drawCardsFaceUp(canvasWidth, canvasHeight, ctx);
-
-    // console.log(this.hand);
   }
 
   addCardToHand(card) {
@@ -179,7 +165,12 @@ export class Player {
       (gameState === GAME_STATE.PLAYER_2_TURN &&
         this.number === PLAYER_NUMBERS.PLAYER_2)
     ) {
-      this.#drawHand(canvasWidth, canvasHeight, ctx);
+      this.#drawCardsInHand(
+        canvasWidth,
+        canvasHeight,
+        ctx,
+        this.kind === PLAYER_KINDS.CPU,
+      );
     }
   }
 }

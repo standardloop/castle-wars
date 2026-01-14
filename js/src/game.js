@@ -216,16 +216,6 @@ export class Game {
     }
   }
 
-  #cardXPosToIndex(card) {
-    if (card.x === null) {
-      alert("CRASH");
-      return null;
-    } else if (card.x === 0) {
-      return 0;
-    }
-    return card.x / (card.rectWidth + CARD_PADDING) - 1; // -1 from filling 90% of width
-  }
-
   #playCard(player, card) {
     let enemy;
     if (player.number === PLAYER_NUMBERS.PLAYER_1) {
@@ -291,12 +281,14 @@ export class Game {
 
   #removeCardFromPlayerHand(player, card) {
     let cardDup = card;
-    let index = this.#cardXPosToIndex(card); // look into this again
-    //console.log(index);
+    let index = card.index;
+    // console.log(index);
     const newCard = this.#deck.getCardFromDeck();
     if (player.kind == PLAYER_KINDS.HUMAN) {
+      // for CPU, we keep the hand hidden, so don't log their new card
       console.log(`Player ${player.number} drew card "${newCard.name}"`);
     }
+    newCard.index = index;
     player.hand[index] = newCard;
     this.#deck.addCardToDeck(cardDup);
   }
@@ -412,6 +404,7 @@ export class Game {
   #startingHand(player) {
     for (let i = 0; i < CARDS_IN_HAND; i++) {
       let card = this.#deck.getCardFromDeck();
+      card.index = i;
       player.addCardToHand(card);
     }
   }
