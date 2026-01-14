@@ -1,5 +1,3 @@
-import { GetGrassStart } from "./constants.js";
-
 const CARD_TYPES = Object.freeze({
   BRICKS: 0,
   WEAPONS: 1,
@@ -32,8 +30,13 @@ export class Deck {
     return this.#cards.shift();
   }
   addCardToDeck(card) {
+    // reset size and position since it shouldn't be drawn anymore
     card.x = null;
     card.y = null;
+    card.rectWidth = null;
+    card.rectHeight = null;
+    card.index = null;
+
     this.#cards.push(card);
     this.shuffleDeck();
   }
@@ -46,19 +49,31 @@ export class Card {
     this.effect = effect;
     this.kind = kind;
 
-    // FIXME, size is hardcoded
-    // this.rectWidth = (canvasWidth * 0.8) / 8;
-    // this.rectHeight = GetGrassStart(canvasHeight) * 0.2;
-    this.rectWidth = 5 * 10;
-    this.rectHeight = 7 * 10;
-
-    // this gets updated when
+    // these get set when a card is drawn
+    // and unset when card is in a deck
+    this.rectWidth = null;
+    this.rectHeight = null;
     this.x = null;
     this.y = null;
+    this.index = null;
   }
 
   // canPlay is bool
-  draw(canvasWidth, canvasHeight, ctx, x, canPlay) {
+  draw(
+    canvasWidth,
+    canvasHeight,
+    ctx,
+    cardWidth,
+    cardHeight,
+    x,
+    y,
+    canPlay,
+    isFaceDown,
+  ) {
+    this.x = x;
+    this.y = y;
+    this.rectWidth = cardWidth;
+    this.rectHeight = cardHeight;
     let color;
     switch (this.kind) {
       case CARD_TYPES.BRICKS:
@@ -74,29 +89,28 @@ export class Card {
         color = "grey";
         break;
     }
-    if (!canPlay) {
+    if (!canPlay || isFaceDown) {
       color = "grey";
     }
 
-    const y = GetGrassStart(canvasHeight);
     ctx.fillStyle = color;
-    ctx.fillRect(x, y, this.rectWidth, this.rectHeight);
+    ctx.fillRect(x, y, cardWidth, cardHeight);
 
-    ctx.fillStyle = "#000000ff";
-    ctx.font = "10px Times New Roman";
-    let textY = y + this.rectHeight / 2;
-    let textX = x + this.rectWidth / 2;
-    const spaceChar = " ";
-    if (this.name.includes(spaceChar)) {
-      let allWordsInName = this.name.split(spaceChar);
-      for (let i = 0; i < allWordsInName.length; i++) {
-        ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+    if (!isFaceDown) {
+      ctx.fillStyle = "#000000ff";
+      ctx.font = "10px Times New Roman";
+      let textX = x + cardWidth / 2;
+      let textY = y + cardHeight / 2;
+      const spaceChar = " ";
+      if (this.name.includes(spaceChar)) {
+        let allWordsInName = this.name.split(spaceChar);
+        for (let i = 0; i < allWordsInName.length; i++) {
+          ctx.fillText(allWordsInName[i], textX, textY + i * 10);
+        }
+      } else {
+        ctx.fillText(this.name, textX, textY);
       }
-    } else {
-      ctx.fillText(this.name, textX, textY);
     }
-    this.x = x;
-    this.y = y;
   }
 
   inBounds(mouseX, mouseY) {

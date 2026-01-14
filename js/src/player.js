@@ -1,4 +1,5 @@
 import { DrawCastle, DrawFence } from "./castle.js";
+import { GetGrassStart, CARD_PADDING, CARDS_IN_HAND } from "./constants.js";
 import { GAME_STATE } from "./game.js";
 
 export const PLAYER_KINDS = Object.freeze({
@@ -124,34 +125,32 @@ export class Player {
     return this.stats[card.cost.resource] >= card.cost.amount;
   }
 
-  #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
-    let cardStart = 0;
+  // for now, we are drawing cards based on canvas size
+  #drawCardsInHand(canvasWidth, canvasHeight, ctx, isFaceDown) {
+    const cardRectHeight = (canvasHeight - GetGrassStart(canvasHeight)) * 0.8;
+    const cardStartY =
+      GetGrassStart(canvasHeight) +
+      (canvasHeight - GetGrassStart(canvasHeight)) * 0.1;
+
+    let cardStartX = canvasWidth * 0.1 - CARD_PADDING * CARDS_IN_HAND;
+    const cardEnd = canvasWidth * 0.9;
+    const cardRectWidth = (cardEnd - cardStartX) / CARDS_IN_HAND;
+
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
       this.hand[card].draw(
         canvasWidth,
         canvasHeight,
         ctx,
-        cardStart,
+        cardRectWidth,
+        cardRectHeight,
+        cardStartX,
+        cardStartY,
         cardCanBePlayedBool,
+        isFaceDown,
       );
-      cardStart += this.hand[card].rectWidth + 1; // FIXME card padding;
+      cardStartX += cardRectWidth + CARD_PADDING;
     }
-  }
-
-  // TODO
-  #drawCardsFaceDown() {}
-
-  #drawHand(canvasWidth, canvasHeight, ctx) {
-    // TODO
-    // if (this.kind === PLAYER_KINDS.HUMAN) {
-    //   this.#drawCardsFaceUp();
-    // } else if (this.kind === PLAYER_KINDS.CPU) {
-    //   this.#drawCardsFaceDown();
-    // }
-    this.#drawCardsFaceUp(canvasWidth, canvasHeight, ctx);
-
-    // console.log(this.hand);
   }
 
   addCardToHand(card) {
@@ -166,7 +165,12 @@ export class Player {
       (gameState === GAME_STATE.PLAYER_2_TURN &&
         this.number === PLAYER_NUMBERS.PLAYER_2)
     ) {
-      this.#drawHand(canvasWidth, canvasHeight, ctx);
+      this.#drawCardsInHand(
+        canvasWidth,
+        canvasHeight,
+        ctx,
+        this.kind === PLAYER_KINDS.CPU,
+      );
     }
   }
 }

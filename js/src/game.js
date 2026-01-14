@@ -2,7 +2,11 @@ import { Background } from "./background.js";
 import { Menu, MENU_BUTTONS } from "./menu.js";
 import { Player, PLAYER_NUMBERS, PLAYER_KINDS } from "./player.js";
 import { Deck } from "./deck.js";
-import { CARDS_IN_HAND, CASTLE_SIZE_TO_WIN } from "./constants.js";
+import {
+  CARDS_IN_HAND,
+  CARD_PADDING,
+  CASTLE_SIZE_TO_WIN,
+} from "./constants.js";
 
 export const APP_STATE = Object.freeze({
   MENU: 0,
@@ -190,7 +194,7 @@ export class Game {
       this.#playCard(this.#player2, card);
       this.#removeCardFromPlayerHand(this.#player2, card);
     } else {
-      console.log(`CPU discarded ${card.name}!`);
+      console.log(`CPU discarded "${card.name}"`);
       this.#removeCardFromPlayerHand(this.#player2, card);
     }
     this.#endOfTurnSteps(this.#player2);
@@ -212,17 +216,6 @@ export class Game {
     }
   }
 
-  #cardXPosToIndex(card) {
-    if (card.x === null) {
-      alert("CRASH");
-      return null;
-    } else if (card.x === 0) {
-      return 0;
-    }
-    const cardPadding = 1;
-    return card.x / (card.rectWidth + cardPadding);
-  }
-
   #playCard(player, card) {
     let enemy;
     if (player.number === PLAYER_NUMBERS.PLAYER_1) {
@@ -231,9 +224,9 @@ export class Game {
       enemy = this.#player1;
     }
     if (player.kind === PLAYER_KINDS.HUMAN) {
-      console.log(`Player ${player.number} played card ${card.name}`);
+      console.log(`Player ${player.number} played card "${card.name}"`);
     } else {
-      console.log(`CPU played card ${card.name}`);
+      console.log(`CPU played card "${card.name}"`);
     }
 
     card.effect.self.forEach((effect) => {
@@ -288,9 +281,15 @@ export class Game {
 
   #removeCardFromPlayerHand(player, card) {
     let cardDup = card;
-    let index = this.#cardXPosToIndex(card);
-    console.log(index);
-    player.hand[index] = this.#deck.getCardFromDeck();
+    let index = card.index;
+    // console.log(index);
+    const newCard = this.#deck.getCardFromDeck();
+    if (player.kind == PLAYER_KINDS.HUMAN) {
+      // for CPU, we keep the hand hidden, so don't log their new card
+      console.log(`Player ${player.number} drew card "${newCard.name}"`);
+    }
+    newCard.index = index;
+    player.hand[index] = newCard;
     this.#deck.addCardToDeck(cardDup);
   }
 
@@ -342,7 +341,7 @@ export class Game {
       if (card.inBounds(mouseX, mouseY)) {
         // discard
         if (shiftKey) {
-          console.log(`Player 1 discarded ${card.name}!`);
+          console.log(`Player ${player.number} discarded "${card.name}"`);
           // just remove player card from the players hand
           this.#removeCardFromPlayerHand(player, card);
           wasValidActionPerformed = true;
@@ -405,6 +404,7 @@ export class Game {
   #startingHand(player) {
     for (let i = 0; i < CARDS_IN_HAND; i++) {
       let card = this.#deck.getCardFromDeck();
+      card.index = i;
       player.addCardToHand(card);
     }
   }
