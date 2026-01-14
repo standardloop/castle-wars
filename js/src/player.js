@@ -126,6 +126,9 @@ export class Player {
   }
 
   // for now, we are drawing cards based on canvas size
+  // FIXME make this easier to adjust
+  // define a ratio between width and height to always scale more cleanly
+
   #drawCardsInHand(canvasWidth, canvasHeight, ctx, isFaceDown) {
     const cardRectHeight = (canvasHeight - GetGrassStart(canvasHeight)) * 0.8;
     const cardStartY =
