@@ -2,7 +2,11 @@ import { Background } from "./background.js";
 import { Menu, MENU_BUTTONS } from "./menu.js";
 import { Player, PLAYER_NUMBERS, PLAYER_KINDS } from "./player.js";
 import { Deck } from "./deck.js";
-import { CARDS_IN_HAND, CASTLE_SIZE_TO_WIN } from "./constants.js";
+import {
+  CARDS_IN_HAND,
+  CARD_PADDING,
+  CASTLE_SIZE_TO_WIN,
+} from "./constants.js";
 
 export const APP_STATE = Object.freeze({
   MENU: 0,
@@ -190,7 +194,7 @@ export class Game {
       this.#playCard(this.#player2, card);
       this.#removeCardFromPlayerHand(this.#player2, card);
     } else {
-      console.log(`CPU discarded ${card.name}!`);
+      console.log(`CPU discarded "${card.name}"`);
       this.#removeCardFromPlayerHand(this.#player2, card);
     }
     this.#endOfTurnSteps(this.#player2);
@@ -219,8 +223,7 @@ export class Game {
     } else if (card.x === 0) {
       return 0;
     }
-    const cardPadding = 1;
-    return card.x / (card.rectWidth + cardPadding);
+    return card.x / (card.rectWidth + CARD_PADDING) - 1; // -1 from filling 90% of width
   }
 
   #playCard(player, card) {
@@ -231,9 +234,9 @@ export class Game {
       enemy = this.#player1;
     }
     if (player.kind === PLAYER_KINDS.HUMAN) {
-      console.log(`Player ${player.number} played card ${card.name}`);
+      console.log(`Player ${player.number} played card "${card.name}"`);
     } else {
-      console.log(`CPU played card ${card.name}`);
+      console.log(`CPU played card "${card.name}"`);
     }
 
     card.effect.self.forEach((effect) => {
@@ -288,9 +291,13 @@ export class Game {
 
   #removeCardFromPlayerHand(player, card) {
     let cardDup = card;
-    let index = this.#cardXPosToIndex(card);
-    console.log(index);
-    player.hand[index] = this.#deck.getCardFromDeck();
+    let index = this.#cardXPosToIndex(card); // look into this again
+    //console.log(index);
+    const newCard = this.#deck.getCardFromDeck();
+    if (player.kind == PLAYER_KINDS.HUMAN) {
+      console.log(`Player ${player.number} drew card "${newCard.name}"`);
+    }
+    player.hand[index] = newCard;
     this.#deck.addCardToDeck(cardDup);
   }
 
@@ -342,7 +349,7 @@ export class Game {
       if (card.inBounds(mouseX, mouseY)) {
         // discard
         if (shiftKey) {
-          console.log(`Player 1 discarded ${card.name}!`);
+          console.log(`Player ${player.number} discarded "${card.name}"`);
           // just remove player card from the players hand
           this.#removeCardFromPlayerHand(player, card);
           wasValidActionPerformed = true;

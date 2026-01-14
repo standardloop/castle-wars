@@ -1,4 +1,5 @@
 import { DrawCastle, DrawFence } from "./castle.js";
+import { GetGrassStart, CARD_PADDING } from "./constants.js";
 import { GAME_STATE } from "./game.js";
 
 export const PLAYER_KINDS = Object.freeze({
@@ -124,18 +125,30 @@ export class Player {
     return this.stats[card.cost.resource] >= card.cost.amount;
   }
 
+  // for now, we are drawing cards based on canvas size
   #drawCardsFaceUp(canvasWidth, canvasHeight, ctx) {
-    let cardStart = 0;
+    const cardRectHeight = (canvasHeight - GetGrassStart(canvasHeight)) * 0.8;
+    const cardStartY =
+      GetGrassStart(canvasHeight) +
+      (canvasHeight - GetGrassStart(canvasHeight)) * 0.1;
+
+    let cardStartX = canvasWidth * 0.1;
+    const cardEnd = canvasWidth * 0.9;
+    const cardRectWidth = (cardEnd - cardStartX) / 8;
+
     for (let card = 0; card < this.hand.length; card++) {
       let cardCanBePlayedBool = this.canPlayerPlayCard(this.hand[card]);
       this.hand[card].draw(
         canvasWidth,
         canvasHeight,
         ctx,
-        cardStart,
+        cardRectWidth,
+        cardRectHeight,
+        cardStartX,
+        cardStartY,
         cardCanBePlayedBool,
       );
-      cardStart += this.hand[card].rectWidth + 1; // FIXME card padding;
+      cardStartX += cardRectWidth + CARD_PADDING;
     }
   }
 
