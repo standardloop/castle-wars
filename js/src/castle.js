@@ -1,10 +1,14 @@
 import { PLAYER_NUMBERS } from "./player.js";
 import { GetGrassStart } from "./constants.js";
 
-const brickWidth = 225 / 25;
-const brickHeight = 75 / 25;
+function getBrickWidth(canvasWidth) {
+  return canvasWidth / 100;
+}
+function getBrickHeight(canvasHeight) {
+  return GetGrassStart(canvasHeight) / 100;
+}
 
-const castleWidth = 10;
+const brickPadding = 0.5;
 
 export function DrawCastle(
   canvasWidth,
@@ -14,7 +18,10 @@ export function DrawCastle(
   bricksHigh,
   playerNumber,
 ) {
-  ctx.fillStyle = color;
+  const brickWidth = getBrickWidth(canvasWidth);
+  const brickHeight = getBrickHeight(canvasHeight);
+
+  const castleWidth = 10;
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
@@ -27,16 +34,119 @@ export function DrawCastle(
   }
 
   let castleStartY = GetGrassStart(canvasHeight);
+
+  let realSidePositionX;
   for (let layersY = 1; layersY <= bricksHigh; layersY++) {
+    if (
+      (playerNumber === PLAYER_NUMBERS.PLAYER_2 && layersY % 2 === 1) ||
+      (playerNumber === PLAYER_NUMBERS.PLAYER_1 && layersY % 2 === 0)
+    ) {
+      realSidePositionX = sidePositionX - (flipper * brickWidth) / 2;
+    } else {
+      realSidePositionX = sidePositionX;
+    }
+
     for (let layersX = 1; layersX <= castleWidth; layersX++) {
-      drawBrick(
-        ctx,
-        sidePositionX + layersX * brickWidth * flipper,
-        castleStartY - brickHeight * layersY,
-        brickWidth,
-        brickHeight,
-        true,
-      );
+      if (
+        (!(layersY === bricksHigh && layersX % 2 === 0) &&
+          playerNumber === PLAYER_NUMBERS.PLAYER_2) ||
+        (!(layersY === bricksHigh && layersX % 2 === 1) &&
+          playerNumber === PLAYER_NUMBERS.PLAYER_1)
+      ) {
+        drawBrick(
+          ctx,
+          realSidePositionX + layersX * brickWidth * flipper,
+          castleStartY - brickHeight * layersY,
+          brickWidth,
+          brickHeight,
+          true,
+          color,
+          false,
+        );
+      }
+    }
+  }
+  drawPillar(
+    canvasWidth,
+    canvasHeight,
+    ctx,
+    color,
+    bricksHigh,
+    playerNumber,
+    castleWidth,
+    true,
+  );
+  drawPillar(
+    canvasWidth,
+    canvasHeight,
+    ctx,
+    color,
+    bricksHigh,
+    playerNumber,
+    castleWidth,
+    false,
+  );
+}
+
+function drawPillar(
+  canvasWidth,
+  canvasHeight,
+  ctx,
+  color,
+  bricksHigh,
+  playerNumber,
+  castleWidth,
+  isLeft,
+) {
+  const pillarExtension = 3;
+
+  bricksHigh += pillarExtension;
+  const brickWidth = getBrickWidth(canvasWidth) / 2;
+  const brickHeight = getBrickHeight(canvasHeight);
+
+  const pillarWidth = 5;
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "black";
+  let flipper = 1;
+  let sidePositionX;
+  if (playerNumber === PLAYER_NUMBERS.PLAYER_1) {
+    sidePositionX = canvasWidth * 0.2;
+    if (isLeft) {
+      sidePositionX -= brickWidth * pillarWidth;
+      sidePositionX += brickWidth;
+    } else {
+      sidePositionX += brickWidth * 2 * castleWidth;
+    }
+  } else {
+    sidePositionX = canvasWidth * 0.8;
+    if (isLeft) {
+      sidePositionX -= brickWidth * 2 * castleWidth;
+      sidePositionX += brickWidth;
+    } else {
+      sidePositionX += brickWidth * pillarWidth;
+    }
+    flipper = -1;
+  }
+
+  let castleStartY = GetGrassStart(canvasHeight);
+
+  let realSidePositionX;
+  for (let layersY = 1; layersY <= bricksHigh; layersY++) {
+    realSidePositionX = sidePositionX;
+
+    for (let layersX = 1; layersX <= pillarWidth; layersX++) {
+      if (!(layersY === bricksHigh && layersX % 2 === 0)) {
+        drawBrick(
+          ctx,
+          realSidePositionX + layersX * brickWidth * flipper,
+          castleStartY - brickHeight * layersY,
+          brickWidth,
+          brickHeight,
+          true,
+          color,
+          true,
+        );
+      }
     }
   }
 }
@@ -48,8 +158,10 @@ export function DrawFence(
   bricksHigh,
   playerNumber,
 ) {
+  const brickWidth = getBrickWidth(canvasWidth) * 0.5;
+  const brickHeight = getBrickHeight(canvasHeight) * 0.5;
+
   const fenceWidth = 2;
-  ctx.fillStyle = "red";
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
@@ -72,17 +184,31 @@ export function DrawFence(
         brickWidth,
         brickHeight,
         true,
+        "red",
+        false,
       );
     }
   }
 }
 
-function drawBrick(ctx, x, y, width, height, drawBorder) {
+function drawBrick(ctx, x, y, width, height, drawBorder, color, gradient) {
+  // todo?
+  if (gradient) {
+    // const gradient = ctx.createLinearGradient(x, y, x + width, height);
+    // gradient.addColorStop(0.0, "red");
+    // gradient.addColorStop(1.0, "green");
+    // ctx.fillStyle = gradient;
+    ctx.fillStyle = color;
+  } else {
+    ctx.fillStyle = color;
+  }
+
   ctx.fillRect(x, y, width, height);
+
   if (drawBorder) {
     ctx.beginPath();
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 1;
+    ctx.lineWidth = brickPadding;
     ctx.moveTo(x, y);
     ctx.lineTo(x + width, y);
     ctx.stroke();

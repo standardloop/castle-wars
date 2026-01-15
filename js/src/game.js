@@ -314,6 +314,7 @@ export class Game {
     ) {
       this.#gameState = GAME_STATE.PLAYER_1_WIN;
       alert("Player 1 wins!!!"); // FIXME, alert is before seeing tower at 100
+      // console.log("Player 1 wins!!!");
     } else if (
       player.number === PLAYER_NUMBERS.PLAYER_2 &&
       enemy.number === PLAYER_NUMBERS.PLAYER_1 &&
@@ -322,6 +323,7 @@ export class Game {
     ) {
       this.#gameState = GAME_STATE.PLAYER_2_WIN;
       alert("Player 2 wins!!!");
+      // console.log("Player 2 wins!!!");
     }
     return (
       this.#gameState === GAME_STATE.PLAYER_1_WIN ||
