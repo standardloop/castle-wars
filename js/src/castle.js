@@ -22,7 +22,6 @@ export function DrawCastle(
   const brickHeight = getBrickHeight(canvasHeight);
 
   const castleWidth = 10;
-  ctx.fillStyle = color;
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
@@ -61,6 +60,8 @@ export function DrawCastle(
           brickWidth,
           brickHeight,
           true,
+          color,
+          false,
         );
       }
     }
@@ -104,7 +105,6 @@ function drawPillar(
   const brickHeight = getBrickHeight(canvasHeight);
 
   const pillarWidth = 5;
-  ctx.fillStyle = color;
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
@@ -112,16 +112,16 @@ function drawPillar(
   if (playerNumber === PLAYER_NUMBERS.PLAYER_1) {
     sidePositionX = canvasWidth * 0.2;
     if (isLeft) {
-      sidePositionX -= brickWidth * pillarWidth - brickWidth * 2 * castleWidth;
-      sidePositionX += brickWidth;
-    } else {
       sidePositionX -= brickWidth * pillarWidth;
       sidePositionX += brickWidth;
+    } else {
+      sidePositionX += brickWidth * 2 * castleWidth;
     }
   } else {
     sidePositionX = canvasWidth * 0.8;
     if (isLeft) {
-      sidePositionX += brickWidth * pillarWidth - brickWidth * 2 * castleWidth;
+      sidePositionX -= brickWidth * 2 * castleWidth;
+      sidePositionX += brickWidth;
     } else {
       sidePositionX += brickWidth * pillarWidth;
     }
@@ -143,6 +143,8 @@ function drawPillar(
           brickWidth,
           brickHeight,
           true,
+          color,
+          true,
         );
       }
     }
@@ -160,7 +162,6 @@ export function DrawFence(
   const brickHeight = getBrickHeight(canvasHeight) * 0.5;
 
   const fenceWidth = 2;
-  ctx.fillStyle = "red";
   ctx.lineWidth = 1;
   ctx.strokeStyle = "black";
   let flipper = 1;
@@ -183,13 +184,27 @@ export function DrawFence(
         brickWidth,
         brickHeight,
         true,
+        "red",
+        false,
       );
     }
   }
 }
 
-function drawBrick(ctx, x, y, width, height, drawBorder) {
+function drawBrick(ctx, x, y, width, height, drawBorder, color, gradient) {
+  // todo?
+  if (gradient) {
+    // const gradient = ctx.createLinearGradient(x, y, x + width, height);
+    // gradient.addColorStop(0.0, "red");
+    // gradient.addColorStop(1.0, "green");
+    // ctx.fillStyle = gradient;
+    ctx.fillStyle = color;
+  } else {
+    ctx.fillStyle = color;
+  }
+
   ctx.fillRect(x, y, width, height);
+
   if (drawBorder) {
     ctx.beginPath();
     ctx.strokeStyle = "white";
