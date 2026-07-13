@@ -15,3 +15,19 @@ Recreation of a Flash Game called Castle Wars which is based on a game called AN
 
 - using HTML Canvas
 - zero dependencies, just vanilla JS
+
+
+## Screenshot
+
+![alt text](https://raw.githubusercontent.com/standardloop/castle-wars/refs/heads/main/docs/screenshot.png)
+
+## Running
+Please see the repo's Taskfile for running a local server and testing locally.
+
+```sh
+$ task
+task: Available tasks for this project:
+* default:       List all avaiable tasks. 
+* fmt:           Format the files with prettier. 
+* run:           Run a Python3 HTTP server to serve the static files. 
+```
