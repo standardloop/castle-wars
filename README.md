@@ -4,8 +4,8 @@
 
 ---
 
-- https://github.com/standardloop/castle-wars
-- https://castlewars.standardloop.dev
+- [https://github.com/standardloop/castle-wars](https://github.com/standardloop/castle-wars)
+- [https://castlewars.standardloop.dev](https://castlewars.standardloop.dev)
 
 ## About
 
